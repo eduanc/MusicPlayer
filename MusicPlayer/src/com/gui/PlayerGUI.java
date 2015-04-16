@@ -1,33 +1,37 @@
 package com.gui;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListResourceBundle;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.DefaultListModel;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
 import javax.swing.JButton;
-import javax.swing.JScrollPane;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
 
 import com.dao.MusicaDAO;
 import com.dto.MusicaDTO;
 import com.player.MusicPlayer;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
 public class PlayerGUI extends JFrame {
+	
+	
 
 	private static final long serialVersionUID = 8487021165177117115L;
 	private JPanel contentPane;
@@ -79,7 +83,7 @@ public class PlayerGUI extends JFrame {
 		panelBotoesAudio.setBounds(12, 62, 426, 50);
 		contentPane.add(panelBotoesAudio);
 		
-		JButton btnAnterior = new JButton("<");
+		JButton btnAnterior = new JButton("«");
 		btnAnterior.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				previous();
@@ -87,7 +91,7 @@ public class PlayerGUI extends JFrame {
 		});
 		panelBotoesAudio.add(btnAnterior);
 		
-		JButton btnPlay = new JButton("play");
+		JButton btnPlay = new JButton(">");
 		btnPlay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (selected == null && playlist.size() > 0) {
@@ -99,7 +103,7 @@ public class PlayerGUI extends JFrame {
 		});
 		panelBotoesAudio.add(btnPlay);
 		
-		JButton btnPause = new JButton("pause");
+		JButton btnPause = new JButton("||");
 		btnPause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mPlayer.pause();
@@ -107,7 +111,7 @@ public class PlayerGUI extends JFrame {
 		});
 		panelBotoesAudio.add(btnPause);
 		
-		JButton btnStop = new JButton("stop");
+		JButton btnStop = new JButton("[]");
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mPlayer.stop();
@@ -115,7 +119,7 @@ public class PlayerGUI extends JFrame {
 		});
 		panelBotoesAudio.add(btnStop);
 		
-		JButton btnProxima = new JButton(">");
+		JButton btnProxima = new JButton("»");
 		btnProxima.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				next();
@@ -133,7 +137,7 @@ public class PlayerGUI extends JFrame {
 		scrollPaneReproducao.setViewportView(listReproducao);
 		
 		JPanel panelBotoesLista = new JPanel();
-		panelBotoesLista.setBounds(388, 124, 50, 136);
+		panelBotoesLista.setBounds(400, 107, 50, 153);
 		contentPane.add(panelBotoesLista);
 		
 		JButton buttonUp = new JButton("↑");
@@ -165,6 +169,26 @@ public class PlayerGUI extends JFrame {
 		});
 		panelBotoesLista.add(btnExcluir);
 		
+		JButton btnAdd = new JButton("+");
+		btnAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(new FileNameExtensionFilter("Audio", "mp3", "ogg", "wav"));
+
+				int res = fc.showOpenDialog(null);
+				if (res == JFileChooser.APPROVE_OPTION) {
+					File arquivo = fc.getSelectedFile();
+					if(arquivo != null) {
+						playlist.add(new MusicaDTO(arquivo, playlist.size()));
+						reloadJPlaylist();
+					} else { 
+						JOptionPane.showMessageDialog(null, "Erro ao carregar arquivo!");
+					}
+				}
+			}
+		});
+		panelBotoesLista.add(btnAdd);
+		
 		for (MusicaDTO musica : playlist) {
 			listModelReproducao.addElement(musica.getNome());
 		}
@@ -195,8 +219,6 @@ public class PlayerGUI extends JFrame {
 		
 		selected = playlist.get(index);
 		listReproducao.setSelectedIndex(index);
-		
-		System.out.println(selected);
 	}
 	
 	private void next() {
@@ -204,8 +226,6 @@ public class PlayerGUI extends JFrame {
 		
 		selected = playlist.get(index);
 		listReproducao.setSelectedIndex(index);
-		
-		System.out.println(selected);
 	}
 	
 	private void posicaoUp() {
@@ -239,5 +259,7 @@ public class PlayerGUI extends JFrame {
 		for (MusicaDTO musica : playlist) {
 			listModelReproducao.addElement(musica.getNome());
 		}
+		
+		dao.gravar(playlist);
 	}
 }

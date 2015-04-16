@@ -1,24 +1,67 @@
 package com.dao;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 import com.dto.MusicaDTO;
+import com.util.DataUtil;
 
 public class MusicaDAO {
 
 	final static String NOMEDOARQUIVO = "playlist";
 	final static String LOCALHOST = "xml/";
 
-	public void gravar(List<MusicaDTO> lista) {
-
+	public boolean gravar(List<MusicaDTO> lista) {
+		Element config = new Element("playlist");
+		Document documento = new Document(config);
+		
+		Element data = new Element("data");
+		data.setText(DataUtil.DataHoraForStringPadraoH(new Date()));
+		config.addContent(data);
+		
+		for (MusicaDTO item : lista) {
+			Element musica = new Element("musica");
+			
+			Element nome = new Element("nome").setText(item.getNome());
+			Element autor = new Element("autor").setText(item.getAutor());
+			Element arquivo = new Element("arquivo").setText(item.getArquivo().getAbsolutePath());
+			Element posicao = new Element("posicao").setText(item.getPosicao()+"");
+			Element duracao = new Element("duracao").setText(item.getDuracao()+"");
+			Element formato = new Element("formato").setText(item.getFormato()+"");
+			
+			musica.addContent(nome);
+			musica.addContent(autor);
+			musica.addContent(arquivo);
+			musica.addContent(posicao);
+			musica.addContent(duracao);
+			musica.addContent(formato);
+			config.addContent(musica);
+		}
+		
+		XMLOutputter xout = new XMLOutputter();
+		try {
+			//criando o arquivo de saida
+			BufferedWriter arquivo = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(LOCALHOST +  NOMEDOARQUIVO + ".xml"),"UTF-8"));
+			//imprimindo o xml no arquivo
+			xout.output(documento, arquivo);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public List<MusicaDTO> ler() {
