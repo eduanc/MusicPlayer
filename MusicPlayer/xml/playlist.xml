@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist>
+
+	<musica>
+		<nome>Pigs on the Wing (Part One)</nome>
+		<autor>Pink Floyd</autor>
+		<arquivo>/home/everton/Music/Pink Floyd Discography/Animals/01 Pigs on the Wing (Part One).mp3</arquivo>
+		<posicao>0</posicao>
+		<duracao>85</duracao>
+		<formato>0</formato>
+	</musica>
+	
+	<musica>
+		<nome>Dogs</nome>
+		<autor>Pink Floyd</autor>
+		<arquivo>/home/everton/Music/Pink Floyd Discography/Animals/02 Dogs.mp3</arquivo>
+		<posicao>1</posicao>
+		<duracao>1028</duracao>
+		<formato>0</formato>
+	</musica>
+	
+	<musica>
+		<nome>Pigs (Three Different Ones)</nome>
+		<autor>Pink Floyd</autor>
+		<arquivo>/home/everton/Music/Pink Floyd Discography/Animals/03 Pigs (Three Different Ones).mp3</arquivo>
+		<posicao>2</posicao>
+		<duracao>688</duracao>
+		<formato>0</formato>
+	</musica>
+	
+	<musica>
+		<nome>Sheep</nome>
+		<autor>Pink Floyd</autor>
+		<arquivo>/home/everton/Music/Pink Floyd Discography/Animals/04 Sheep.mp3</arquivo>
+		<posicao>3</posicao>
+		<duracao>620</duracao>
+		<formato>0</formato>
+	</musica>
+	
+	<musica>
+		<nome>Pigs on the Wing (Part Two)</nome>
+		<autor>Pink Floyd</autor>
+		<arquivo>/home/everton/Music/Pink Floyd Discography/Animals/05 Pigs on the Wing (Part Two).mp3</arquivo>
+		<posicao>4</posicao>
+		<duracao>85</duracao>
+		<formato>0</formato>
+	</musica>
+	
+</playlist>
