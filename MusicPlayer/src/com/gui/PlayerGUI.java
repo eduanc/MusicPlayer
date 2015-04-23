@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,45 +21,25 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.tika.exception.TikaException;
-import org.xml.sax.SAXException;
-
 import com.dao.MusicaDAO;
 import com.dto.MusicaDTO;
 import com.player.MusicPlayer;
+import com.player.PlayerManager;
 
 public class PlayerGUI extends JFrame {
 	
-	
-
 	private static final long serialVersionUID = 8487021165177117115L;
 	private JPanel contentPane;
 	
 	private MusicaDAO dao = new MusicaDAO();
-	private MusicPlayer mPlayer;
+	private MusicPlayer mPlayer = new PlayerManager(); 
 	
 	private List<MusicaDTO> playlist;
 	private MusicaDTO selected = null;
 	
 	private JList<String> listReproducao;
 	private DefaultListModel<String> listModelReproducao;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					PlayerGUI frame = new PlayerGUI();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
+	
 	/**
 	 * Create the frame.
 	 */
@@ -97,6 +76,7 @@ public class PlayerGUI extends JFrame {
 				if (selected == null && playlist.size() > 0) {
 					selected = playlist.get(0);
 				}
+				System.out.println(selected.getArquivo().getAbsolutePath());
 				
 				mPlayer.play(selected);
 			}
@@ -261,5 +241,21 @@ public class PlayerGUI extends JFrame {
 		}
 		
 		dao.gravar(playlist);
+	}
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					PlayerGUI frame = new PlayerGUI();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }
