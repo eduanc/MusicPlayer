@@ -2,6 +2,7 @@ package com.dto;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -35,7 +36,7 @@ public class MusicaDTO implements Comparable<MusicaDTO> {
 		this.arquivo = file;
 		this.posicao = posicao;
 		try {
-			loadMeradata();
+			loadMetadata();
 		} catch (IOException | SAXException | TikaException e) {
 			e.printStackTrace();
 		}
@@ -132,7 +133,7 @@ public class MusicaDTO implements Comparable<MusicaDTO> {
 		}
 	}
 	
-	public void loadMeradata() throws IOException, SAXException, TikaException {
+	public void loadMetadata() throws IOException, SAXException, TikaException {
 		InputStream input = new FileInputStream(arquivo);
 		ContentHandler handler = new DefaultHandler();
 		Metadata metadata = new Metadata();
@@ -152,6 +153,22 @@ public class MusicaDTO implements Comparable<MusicaDTO> {
 		for(String name : metadataNames){
 			System.out.println(name + ": " + metadata.get(name));
 		}*/
+	}
+	
+	public void writeMetadata () throws IOException, SAXException, TikaException {
+		InputStream input = new FileInputStream(arquivo);
+		ContentHandler handler = new DefaultHandler();
+		Metadata metadata = new Metadata();
+		Parser parser = new Mp3Parser();
+		ParseContext parseCtx = new ParseContext();
+		parser.parse(input, handler, metadata, parseCtx);
+		
+		metadata.set("title", this.getNome());
+		metadata.set("meta:author", this.getAutor());
+		metadata.set("xmpDM:duration", (int) this.getDuracao()*1000+"");
+		
+		input.close();
+		System.out.println(metadata.get("title"));
 	}
 	
 	
