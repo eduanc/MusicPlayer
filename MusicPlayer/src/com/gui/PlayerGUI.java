@@ -37,8 +37,8 @@ public class PlayerGUI extends JFrame {
 	private List<MusicDTO> playlist;
 	private MusicDTO selected = null;
 	
-	private JList<String> listReproducao;
-	private DefaultListModel<String> listModelReproducao;
+	private JList<String> reproductionList;
+	private DefaultListModel<String> reproductionListModel;
 	
 	/**
 	 * Create the frame.
@@ -46,29 +46,30 @@ public class PlayerGUI extends JFrame {
 	public PlayerGUI() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+		this.contentPane = new JPanel();
+		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(this.contentPane);
+		this.contentPane.setLayout(null);
 		
-		playlist = dao.read();
+		this.playlist = this.dao.read();
 		
-		JLabel lblInformaesMusica = new JLabel("Informações música");
-		lblInformaesMusica.setBounds(12, 0, 426, 50);
-		lblInformaesMusica.setHorizontalAlignment(JLabel.CENTER);
-		contentPane.add(lblInformaesMusica);
+		JLabel lblInfoMusic = new JLabel("Informações música");
+		lblInfoMusic.setBounds(12, 0, 426, 50);
+		lblInfoMusic.setHorizontalAlignment(JLabel.CENTER);
+		this.contentPane.add(lblInfoMusic);
 		
-		JPanel panelBotoesAudio = new JPanel();
-		panelBotoesAudio.setBounds(12, 62, 426, 50);
-		contentPane.add(panelBotoesAudio);
+		JPanel audioButtonsPanel = new JPanel();
+		audioButtonsPanel.setBounds(12, 62, 426, 50);
+		this.contentPane.add(audioButtonsPanel);
 		
-		JButton btnAnterior = new JButton("«");
-		btnAnterior.addActionListener(new ActionListener() {
+		JButton btnPrevious = new JButton("«");
+		btnPrevious.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				previous();
+				mPlayer.previous();
 			}
 		});
-		panelBotoesAudio.add(btnAnterior);
+		audioButtonsPanel.add(btnPrevious);
 		
 		JButton btnPlay = new JButton(">");
 		btnPlay.addActionListener(new ActionListener() {
@@ -80,7 +81,7 @@ public class PlayerGUI extends JFrame {
 				mPlayer.play(selected);
 			}
 		});
-		panelBotoesAudio.add(btnPlay);
+		audioButtonsPanel.add(btnPlay);
 		
 		JButton btnPause = new JButton("||");
 		btnPause.addActionListener(new ActionListener() {
@@ -88,7 +89,7 @@ public class PlayerGUI extends JFrame {
 				mPlayer.pause();
 			}
 		});
-		panelBotoesAudio.add(btnPause);
+		audioButtonsPanel.add(btnPause);
 		
 		JButton btnStop = new JButton("[]");
 		btnStop.addActionListener(new ActionListener() {
@@ -96,57 +97,58 @@ public class PlayerGUI extends JFrame {
 				mPlayer.stop();
 			}
 		});
-		panelBotoesAudio.add(btnStop);
+		audioButtonsPanel.add(btnStop);
 		
 		JButton btnProxima = new JButton("»");
 		btnProxima.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				next();
+				mPlayer.next();
 			}
 		});
-		panelBotoesAudio.add(btnProxima);
+		audioButtonsPanel.add(btnProxima);
 		
-		JScrollPane scrollPaneReproducao = new JScrollPane();
-		scrollPaneReproducao.setBounds(12, 124, 377, 136);
-		contentPane.add(scrollPaneReproducao);
+		JScrollPane reproductionScrollPane = new JScrollPane();
+		reproductionScrollPane.setBounds(12, 124, 377, 136);
+		this.contentPane.add(reproductionScrollPane);
 		
-		listModelReproducao = new DefaultListModel<String>();
+		this.reproductionListModel = new DefaultListModel<String>();
 		
-		listReproducao = new JList<String>(listModelReproducao);
-		scrollPaneReproducao.setViewportView(listReproducao);
+		this.reproductionList = new JList<String>(this.reproductionListModel);
+		reproductionScrollPane.setViewportView(this.reproductionList);
 		
-		JPanel panelBotoesLista = new JPanel();
-		panelBotoesLista.setBounds(400, 107, 50, 153);
-		contentPane.add(panelBotoesLista);
+		JPanel listButtonsPanel = new JPanel();
+		listButtonsPanel.setBounds(400, 107, 50, 153);
+		this.contentPane.add(listButtonsPanel);
 		
 		JButton buttonUp = new JButton("↑");
 		buttonUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				posicaoUp();
+				positionUp();
 			}
 		});
-		panelBotoesLista.add(buttonUp);
+		listButtonsPanel.add(buttonUp);
 		
 		JButton buttonDown = new JButton("↓");
 		buttonDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				posicaoDown();
+				positionDown();
 			}
 		});
-		panelBotoesLista.add(buttonDown);
+		listButtonsPanel.add(buttonDown);
 		
-		JButton btnEditar = new JButton("e");
-		panelBotoesLista.add(btnEditar);
+		JButton btnEdit = new JButton("e");
+		listButtonsPanel.add(btnEdit);
 		
-		JButton btnExcluir = new JButton("x");
-		btnExcluir.addActionListener(new ActionListener() {
+		JButton btnExclude = new JButton("x");
+		btnExclude.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				playlist.remove(selected);
 				selected=null;
 				reloadJPlaylist();
 			}
 		});
-		panelBotoesLista.add(btnExcluir);
+		listButtonsPanel.add(btnExclude);
 		
 		JButton btnAdd = new JButton("+");
 		btnAdd.addActionListener(new ActionListener() {
@@ -156,9 +158,9 @@ public class PlayerGUI extends JFrame {
 
 				int res = fc.showOpenDialog(null);
 				if (res == JFileChooser.APPROVE_OPTION) {
-					File arquivo = fc.getSelectedFile();
-					if(arquivo != null) {
-						playlist.add(new MusicDTO(arquivo, playlist.size()));
+					File file = fc.getSelectedFile();
+					if(file != null) {
+						playlist.add(new MusicDTO(file, playlist.size()));
 						reloadJPlaylist();
 					} else { 
 						JOptionPane.showMessageDialog(null, "Erro ao carregar arquivo!");
@@ -166,16 +168,16 @@ public class PlayerGUI extends JFrame {
 				}
 			}
 		});
-		panelBotoesLista.add(btnAdd);
+		listButtonsPanel.add(btnAdd);
 		
-		for (MusicDTO musica : playlist) {
-			listModelReproducao.addElement(musica.getName());
+		for (MusicDTO music : this.playlist) {
+			reproductionListModel.addElement(music.getName());
 		}
 		
-		listReproducao.addMouseListener(new MouseAdapter() {
+		reproductionList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int index = listReproducao.locationToIndex(e.getPoint());
+				int index = reproductionList.locationToIndex(e.getPoint());
 				if (index >= 0) {
 					selected = playlist.get(index);
 				}
@@ -183,7 +185,7 @@ public class PlayerGUI extends JFrame {
 		});
 	}
 	
-	private int corrigeIndex(int index) {
+	private int fixIndex(int index) {
 		if (index < 0) {
 			index = playlist.size()-1;
 		} else if (index >= playlist.size()) {
@@ -194,52 +196,52 @@ public class PlayerGUI extends JFrame {
 	}
 	
 	private void previous() {
-		int index = corrigeIndex(playlist.indexOf(selected) - 1);
+		int index = fixIndex(this.playlist.indexOf(this.selected) - 1);
 		
-		selected = playlist.get(index);
-		listReproducao.setSelectedIndex(index);
+		this.selected = this.playlist.get(index);
+		this.reproductionList.setSelectedIndex(index);
 	}
 	
 	private void next() {
-		int index = corrigeIndex(playlist.indexOf(selected) + 1);
+		int index = fixIndex(this.playlist.indexOf(this.selected) + 1);
 		
-		selected = playlist.get(index);
-		listReproducao.setSelectedIndex(index);
+		this.selected = this.playlist.get(index);
+		this.reproductionList.setSelectedIndex(index);
 	}
 	
-	private void posicaoUp() {
-		int index = playlist.indexOf(selected);
+	private void positionUp() {
+		int index = this.playlist.indexOf(this.selected);
 		
 		if (index > 0) {
-			playlist.get(index - 1).setPosition(index);
-			selected.setPosition(selected.getPosition() - 1);
-			Collections.sort(playlist);
+			this.playlist.get(index - 1).setPosition(index);
+			this.selected.setPosition(this.selected.getPosition() - 1);
+			Collections.sort(this.playlist);
 			reloadJPlaylist();
-			listReproducao.setSelectedIndex(index-1);
+			this.reproductionList.setSelectedIndex(index-1);
 		}
 		
 	}
 
-	private void posicaoDown() {
-		int index = playlist.indexOf(selected);
+	private void positionDown() {
+		int index = this.playlist.indexOf(this.selected);
 		
-		if (index < playlist.size()-1) {
-			playlist.get(index + 1).setPosition(index);
-			selected.setPosition(selected.getPosition() + 1);
-			Collections.sort(playlist);
+		if (index < this.playlist.size()-1) {
+			this.playlist.get(index + 1).setPosition(index);
+			this.selected.setPosition(this.selected.getPosition() + 1);
+			Collections.sort(this.playlist);
 			reloadJPlaylist();
-			listReproducao.setSelectedIndex(index+1);
+			this.reproductionList.setSelectedIndex(index+1);
 		}
 	}
 	
 	public void reloadJPlaylist() {
 		// !TODO refazer mais bonito
-		listModelReproducao.clear();
-		for (MusicDTO musica : playlist) {
-			listModelReproducao.addElement(musica.getName());
+		this.reproductionListModel.clear();
+		for (MusicDTO music : this.playlist) {
+			this.reproductionListModel.addElement(music.getName());
 		}
 		
-		dao.imprint(playlist);
+		this.dao.imprint(this.playlist);
 	}
 	
 	/**

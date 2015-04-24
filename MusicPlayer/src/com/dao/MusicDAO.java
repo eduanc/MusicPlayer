@@ -85,7 +85,7 @@ public class MusicDAO {
 			music.setName(element.getChildText("name"));
 			music.setAuthor(element.getChildText("author"));
 			music.setFile(new File(element.getChildText("file")));
-			music.setPosition(Integer.parseInt(element.getChildText("postion")));
+			music.setPosition(Integer.parseInt(element.getChildText("position")));
 			music.setDuration(Integer.parseInt(element.getChildText("duration")));
 			music.setFormat(Integer.parseInt(element.getChildText("format")));
 			list.add(music);
