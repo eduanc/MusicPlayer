@@ -64,7 +64,7 @@ public class PlayerGUI extends JFrame {
 		
 		JButton btnPrevious = new JButton("«");
 		btnPrevious.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {				
 				changeMusic(-1);				
 			}
 		});
@@ -76,8 +76,7 @@ public class PlayerGUI extends JFrame {
 				if (selected == null && playlist.size() > 0) {
 					selected = playlist.get(0);
 					reproductionList.setSelectedIndex(0);
-				}				
-				
+				}								
 				mPlayer.play(0, selected);
 			}
 		});

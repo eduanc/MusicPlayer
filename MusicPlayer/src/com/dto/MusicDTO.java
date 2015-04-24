@@ -70,13 +70,14 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		parser.parse(input, handler, metadata, parseCtx);
 		input.close();
 		
-		this.setName(metadata.get("title") != null ? metadata.get("title") : "");
+		this.setName(metadata.get("title") != null ? metadata.get("title") : "");		
 		this.setAuthor(metadata.get("meta:author") != null ? metadata.get("meta:author") : "");
 		this.setDuration(metadata.get("xmpDM:duration") != null ? (int) Float.parseFloat(metadata.get("xmpDM:duration")) : 0);
 		this.setFormat(readFormat());
 		
 		// List all metadata
-		/*String[] metadataNames = metadata.names();
+		/*
+		String[] metadataNames = metadata.names();
 		 
 		for(String name : metadataNames){
 			System.out.println(name + ": " + metadata.get(name));

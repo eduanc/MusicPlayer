@@ -1,6 +1,7 @@
 package com.player;
 
 import com.dto.MusicDTO;
+import com.gui.PlayerGUI;
 import com.thread.GenericThread;
 import com.thread.ThreadMP3;
 
@@ -12,8 +13,8 @@ public class PlayerManager implements MusicPlayer {
 	@Override
 	public void play(int begin, MusicDTO music) {
 		if(this.currentThread == null){			
-			this.currentThread = new ThreadMP3(begin, music);
-			this.currentThread.start();			
+			this.currentThread = new ThreadMP3(begin, music);			
+			this.currentThread.start();				
 		} else if(this.currentThread.isAlive()){
 			this.currentThread.resume();
 		}
@@ -21,7 +22,7 @@ public class PlayerManager implements MusicPlayer {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void pause() {		
+	public void pause() {			
 		this.currentThread.suspend();
 	}
 
@@ -39,5 +40,9 @@ public class PlayerManager implements MusicPlayer {
 		}
 		
 		this.play(0, music);
+	}
+	
+	public void askForNext(){
+		new PlayerGUI().changeMusic(1);
 	}
 }
