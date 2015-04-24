@@ -21,16 +21,7 @@ public class ThreadMP3 extends GenericThread {
 	public void run() {
 		try {
 			new AdvancedPlayer(new FileInputStream(this.music.getFile().getAbsolutePath())).play(begin, this.music.getDuration());
-			
-			/*  passa para a proxima musica quando essa acabar
-			 *  quando uma musica acaba, o selected na GUI vai para null
-			 *  dai o index vira -1, entao tem que passar a posicao atual dessa musica +2
-			 *  +1 para anular o index -1 e +1 para ir para a proxima musica  			
-			 */
-						
-			//TODO: nao da pra pausar quando muda automaticamente
-			//new PlayerGUI().changeMusic(this.music.getPosition()+2);
-			//new PlayerGUI().changeMusic(1);			
+		
 			new PlayerManager().askForNext();
 		} catch (Exception e) {
 			e.printStackTrace();

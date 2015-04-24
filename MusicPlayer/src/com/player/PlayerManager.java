@@ -1,7 +1,6 @@
 package com.player;
 
 import com.dto.MusicDTO;
-import com.gui.PlayerGUI;
 import com.thread.GenericThread;
 import com.thread.ThreadMP3;
 
@@ -43,6 +42,6 @@ public class PlayerManager implements MusicPlayer {
 	}
 	
 	public void askForNext(){
-		new PlayerGUI().changeMusic(1);
+		//TODO: acessar o metodo changeMusic sem instanciar a GUI
 	}
 }
