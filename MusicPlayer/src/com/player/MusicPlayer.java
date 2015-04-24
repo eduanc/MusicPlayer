@@ -10,7 +10,6 @@ public interface MusicPlayer {
 	
 	public void stop();
 	
-	public void previous();
-	
-	public void next();
+	public void change(MusicDTO musica);
+		
 }

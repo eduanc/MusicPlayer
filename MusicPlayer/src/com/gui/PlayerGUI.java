@@ -66,7 +66,7 @@ public class PlayerGUI extends JFrame {
 		btnPrevious.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				changeMusic(-1);
-				mPlayer.previous();
+				mPlayer.change(selected);
 			}
 		});
 		audioButtonsPanel.add(btnPrevious);
@@ -103,7 +103,7 @@ public class PlayerGUI extends JFrame {
 		btnProxima.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				changeMusic(1);
-				mPlayer.next();
+				mPlayer.change(selected);
 			}
 		});
 		audioButtonsPanel.add(btnProxima);
@@ -190,14 +190,13 @@ public class PlayerGUI extends JFrame {
 			index = playlist.size()-1;
 		} else if (index >= playlist.size()) {
 			index = 0;
-		}
-		
+		}		
 		return index;
 	}
 	
 	
 	private void changeMusic(int op){
-		int index = fixIndex(this.playlist.indexOf(this.selected) - op);
+		int index = fixIndex(this.playlist.indexOf(this.selected) + op);
 		
 		this.selected = this.playlist.get(index);
 		this.reproductionList.setSelectedIndex(index);
