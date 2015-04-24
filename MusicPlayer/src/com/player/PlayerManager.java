@@ -1,6 +1,7 @@
 package com.player;
 
 import com.dto.MusicDTO;
+import com.gui.PlayerGUI;
 import com.thread.GenericThread;
 import com.thread.ThreadMP3;
 
@@ -27,7 +28,7 @@ public class PlayerManager implements MusicPlayer {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void stop() {
+	public void stop() {		
 		this.currentThread.stop();
 		this.currentThread = null;
 	}
@@ -41,7 +42,13 @@ public class PlayerManager implements MusicPlayer {
 		this.play(0, music);
 	}
 	
-	public void askForNext(){
-		//TODO: acessar o metodo changeMusic sem instanciar a GUI
+	@Override
+	public void autoChange(MusicDTO music){
+		this.currentThread = null;
+		this.play(0, music);
+	}
+	
+	public void askForNext(){		
+		PlayerGUI.autoChangeMusic(1);
 	}
 }

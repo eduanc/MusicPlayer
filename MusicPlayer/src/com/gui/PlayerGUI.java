@@ -32,12 +32,12 @@ public class PlayerGUI extends JFrame {
 	private JPanel contentPane;
 	
 	private MusicDAO dao = new MusicDAO();
-	private MusicPlayer mPlayer = new PlayerManager(); 
+	private static MusicPlayer mPlayer = new PlayerManager(); 
 	
-	private List<MusicDTO> playlist;
-	private MusicDTO selected = null;
+	private static List<MusicDTO> playlist;
+	private static MusicDTO selected = null;
 	
-	private JList<String> reproductionList;
+	private static JList<String> reproductionList;
 	private DefaultListModel<String> reproductionListModel;
 	
 	/**
@@ -51,7 +51,7 @@ public class PlayerGUI extends JFrame {
 		setContentPane(this.contentPane);
 		this.contentPane.setLayout(null);
 		
-		this.playlist = this.dao.read();
+		playlist = this.dao.read();
 		
 		JLabel lblInfoMusic = new JLabel("Informações música");
 		lblInfoMusic.setBounds(12, 0, 426, 50);
@@ -112,8 +112,8 @@ public class PlayerGUI extends JFrame {
 		
 		this.reproductionListModel = new DefaultListModel<String>();
 		
-		this.reproductionList = new JList<String>(this.reproductionListModel);
-		reproductionScrollPane.setViewportView(this.reproductionList);
+		reproductionList = new JList<String>(this.reproductionListModel);
+		reproductionScrollPane.setViewportView(reproductionList);
 		
 		JPanel listButtonsPanel = new JPanel();
 		listButtonsPanel.setBounds(400, 107, 50, 153);
@@ -168,7 +168,7 @@ public class PlayerGUI extends JFrame {
 		});
 		listButtonsPanel.add(btnAdd);
 		
-		for (MusicDTO music : this.playlist) {
+		for (MusicDTO music : playlist) {
 			reproductionListModel.addElement(music.getName());
 		}
 		
@@ -183,7 +183,7 @@ public class PlayerGUI extends JFrame {
 		});
 	}
 	
-	private int fixIndex(int index) {
+	private static int fixIndex(int index) {
 		if (index < 0) {
 			index = playlist.size()-1;
 		} else if (index >= playlist.size()) {
@@ -192,49 +192,58 @@ public class PlayerGUI extends JFrame {
 		return index;
 	}
 	
+	private static void changeProcedures(int op){
+		int index = fixIndex(playlist.indexOf(selected) + op);
+		
+		reproductionList.setSelectedIndex(index);
+		selected = playlist.get(index);
+	}
 	
-	public void changeMusic(int op){
-		int index = fixIndex(this.playlist.indexOf(this.selected) + op);		
-								
-		this.reproductionList.setSelectedIndex(index);			
-		this.selected = this.playlist.get(index);		
+	public static void autoChangeMusic(int op){
+		changeProcedures(op);
+						
+		mPlayer.autoChange(selected);
+	}
+	
+	public static void changeMusic(int op){
+		changeProcedures(op);
 		
 		mPlayer.change(selected);
 	}
 			
 	private void positionUp() {
-		int index = this.playlist.indexOf(this.selected);
+		int index = playlist.indexOf(selected);
 		
 		if (index > 0) {
-			this.playlist.get(index - 1).setPosition(index);
-			this.selected.setPosition(this.selected.getPosition() - 1);
-			Collections.sort(this.playlist);
+			playlist.get(index - 1).setPosition(index);
+			selected.setPosition(selected.getPosition() - 1);
+			Collections.sort(playlist);
 			reloadJPlaylist();
-			this.reproductionList.setSelectedIndex(index-1);
+			reproductionList.setSelectedIndex(index-1);
 		}
 		
 	}
 
 	private void positionDown() {
-		int index = this.playlist.indexOf(this.selected);
+		int index = playlist.indexOf(selected);
 		
-		if (index < this.playlist.size()-1) {
-			this.playlist.get(index + 1).setPosition(index);
-			this.selected.setPosition(this.selected.getPosition() + 1);
-			Collections.sort(this.playlist);
+		if (index < playlist.size()-1) {
+			playlist.get(index + 1).setPosition(index);
+			selected.setPosition(selected.getPosition() + 1);
+			Collections.sort(playlist);
 			reloadJPlaylist();
-			this.reproductionList.setSelectedIndex(index+1);
+			reproductionList.setSelectedIndex(index+1);
 		}
 	}
 	
 	public void reloadJPlaylist() {
 		// !TODO refazer mais bonito
 		this.reproductionListModel.clear();
-		for (MusicDTO music : this.playlist) {
+		for (MusicDTO music : playlist) {
 			this.reproductionListModel.addElement(music.getName());
 		}
 		
-		this.dao.imprint(this.playlist);
+		this.dao.imprint(playlist);
 	}
 	
 	/**

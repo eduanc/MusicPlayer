@@ -22,7 +22,7 @@ public class ThreadMP3 extends GenericThread {
 		try {
 			new AdvancedPlayer(new FileInputStream(this.music.getFile().getAbsolutePath())).play(begin, this.music.getDuration());
 		
-			new PlayerManager().askForNext();
+			new PlayerManager().askForNext();			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		

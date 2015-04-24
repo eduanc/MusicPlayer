@@ -12,4 +12,5 @@ public interface MusicPlayer {
 	
 	public void change(MusicDTO musica);
 		
+	public void autoChange(MusicDTO music);
 }
