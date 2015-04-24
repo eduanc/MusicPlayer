@@ -196,7 +196,6 @@ public class PlayerGUI extends JFrame {
 	public void changeMusic(int op){
 		int index = fixIndex(this.playlist.indexOf(this.selected) + op);		
 								
-		//TODO: fazer a linha de baixo funcionar
 		this.reproductionList.setSelectedIndex(index);			
 		this.selected = this.playlist.get(index);		
 		
