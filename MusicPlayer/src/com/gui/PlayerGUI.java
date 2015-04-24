@@ -65,8 +65,7 @@ public class PlayerGUI extends JFrame {
 		JButton btnPrevious = new JButton("«");
 		btnPrevious.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeMusic(-1);
-				mPlayer.change(selected);
+				changeMusic(-1);				
 			}
 		});
 		audioButtonsPanel.add(btnPrevious);
@@ -76,9 +75,10 @@ public class PlayerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (selected == null && playlist.size() > 0) {
 					selected = playlist.get(0);
+					reproductionList.setSelectedIndex(0);
 				}				
 				
-				mPlayer.play(selected);
+				mPlayer.play(0, selected);
 			}
 		});
 		audioButtonsPanel.add(btnPlay);
@@ -102,8 +102,7 @@ public class PlayerGUI extends JFrame {
 		JButton btnProxima = new JButton("»");
 		btnProxima.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeMusic(1);
-				mPlayer.change(selected);
+				changeMusic(1);				
 			}
 		});
 		audioButtonsPanel.add(btnProxima);
@@ -154,7 +153,7 @@ public class PlayerGUI extends JFrame {
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fc = new JFileChooser();
-				fc.setFileFilter(new FileNameExtensionFilter("Audio", "mp3", "ogg", "wav"));
+				fc.setFileFilter(new FileNameExtensionFilter("Audio", "mp3", "ogg", "wav", "flac"));
 
 				int res = fc.showOpenDialog(null);
 				if (res == JFileChooser.APPROVE_OPTION) {
@@ -195,11 +194,14 @@ public class PlayerGUI extends JFrame {
 	}
 	
 	
-	private void changeMusic(int op){
-		int index = fixIndex(this.playlist.indexOf(this.selected) + op);
+	public void changeMusic(int op){
+		int index = fixIndex(this.playlist.indexOf(this.selected) + op);		
+								
+		//TODO: fazer a linha de baixo funcionar
+		this.reproductionList.setSelectedIndex(index);			
+		this.selected = this.playlist.get(index);		
 		
-		this.selected = this.playlist.get(index);
-		this.reproductionList.setSelectedIndex(index);
+		mPlayer.change(selected);
 	}
 			
 	private void positionUp() {

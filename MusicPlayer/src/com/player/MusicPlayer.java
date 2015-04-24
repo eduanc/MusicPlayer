@@ -4,7 +4,7 @@ import com.dto.MusicDTO;
 
 public interface MusicPlayer {
 	
-	public void play(MusicDTO musica);
+	public void play(int begin, MusicDTO musica);
 	
 	public void pause();
 	

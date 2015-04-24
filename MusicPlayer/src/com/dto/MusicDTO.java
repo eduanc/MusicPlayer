@@ -2,7 +2,6 @@ package com.dto;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,6 +19,7 @@ public class MusicDTO implements Comparable<MusicDTO> {
 	public static final int F_MP3 = 0;
 	public static final int F_WAV = 1;
 	public static final int F_OGG = 2;
+	public static final int F_FLAC = 3;
 
 	private String name;
 	private String author;
@@ -43,16 +43,22 @@ public class MusicDTO implements Comparable<MusicDTO> {
 	}
 
 	private int readFormat() {
+		String format = file.getName().split("\\.", -1)[0].toLowerCase();
 		
-		if (file.getName().split("\\.", -1)[0].equalsIgnoreCase("mp3")) {
-			return F_MP3;
-		} else if (file.getName().split("\\.", -1)[0].equalsIgnoreCase("wav")) {
+		//TODO: outros formatos
+		
+		switch (format) {
+		case "mp3":
+			return F_MP3;			
+		case "wav":
 			return F_WAV;
-		} else if (file.getName().split("\\.", -1)[0].equalsIgnoreCase("ogg")) {
+		case "ogg":
 			return F_OGG;
-		} else {
+		case "flac":
+			return F_FLAC;
+		default:
 			return F_DESCONHECIDO;
-		}
+		}		 	
 	}
 	
 	public void loadMetaData() throws IOException, SAXException, TikaException {
@@ -66,7 +72,7 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		
 		this.setName(metadata.get("title") != null ? metadata.get("title") : "");
 		this.setAuthor(metadata.get("meta:author") != null ? metadata.get("meta:author") : "");
-		this.setDuration(metadata.get("xmpDM:duration") != null ? (int) Float.parseFloat(metadata.get("xmpDM:duration"))/1000 : 0);
+		this.setDuration(metadata.get("xmpDM:duration") != null ? (int) Float.parseFloat(metadata.get("xmpDM:duration")) : 0);
 		this.setFormat(readFormat());
 		
 		// List all metadata
@@ -87,7 +93,7 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		
 		metadata.set("title", this.getName());
 		metadata.set("meta:author", this.getAuthor());
-		metadata.set("xmpDM:duration", (int) this.getDuration()*1000+"");
+		metadata.set("xmpDM:duration", (int) this.getDuration()+"");
 		
 		input.close();
 		System.out.println(metadata.get("title"));

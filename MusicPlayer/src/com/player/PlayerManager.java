@@ -10,19 +10,18 @@ public class PlayerManager implements MusicPlayer {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void play(MusicDTO music) {
-		if(currentThread == null){			
-			this.currentThread = new ThreadMP3(music);
+	public void play(int begin, MusicDTO music) {
+		if(this.currentThread == null){			
+			this.currentThread = new ThreadMP3(begin, music);
 			this.currentThread.start();			
-		} else if(this.currentThread.isPaused()){
+		} else if(this.currentThread.isAlive()){
 			this.currentThread.resume();
 		}
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void pause() {
-		this.currentThread.setPaused(true);
+	public void pause() {		
 		this.currentThread.suspend();
 	}
 
@@ -35,7 +34,10 @@ public class PlayerManager implements MusicPlayer {
 	
 	@Override
 	public void change(MusicDTO music){
-		this.stop();
-		this.play(music);
+		if(this.currentThread != null){
+			this.stop();
+		}
+		
+		this.play(0, music);
 	}
 }
