@@ -21,8 +21,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.dao.MusicaDAO;
-import com.dto.MusicaDTO;
+import com.dao.MusicDAO;
+import com.dto.MusicDTO;
 import com.player.MusicPlayer;
 import com.player.PlayerManager;
 
@@ -31,11 +31,11 @@ public class PlayerGUI extends JFrame {
 	private static final long serialVersionUID = 8487021165177117115L;
 	private JPanel contentPane;
 	
-	private MusicaDAO dao = new MusicaDAO();
+	private MusicDAO dao = new MusicDAO();
 	private MusicPlayer mPlayer = new PlayerManager(); 
 	
-	private List<MusicaDTO> playlist;
-	private MusicaDTO selected = null;
+	private List<MusicDTO> playlist;
+	private MusicDTO selected = null;
 	
 	private JList<String> listReproducao;
 	private DefaultListModel<String> listModelReproducao;
@@ -51,7 +51,7 @@ public class PlayerGUI extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		playlist = dao.ler();
+		playlist = dao.read();
 		
 		JLabel lblInformaesMusica = new JLabel("Informações música");
 		lblInformaesMusica.setBounds(12, 0, 426, 50);
@@ -75,8 +75,7 @@ public class PlayerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (selected == null && playlist.size() > 0) {
 					selected = playlist.get(0);
-				}
-				System.out.println(selected.getArquivo().getAbsolutePath());
+				}				
 				
 				mPlayer.play(selected);
 			}
@@ -159,7 +158,7 @@ public class PlayerGUI extends JFrame {
 				if (res == JFileChooser.APPROVE_OPTION) {
 					File arquivo = fc.getSelectedFile();
 					if(arquivo != null) {
-						playlist.add(new MusicaDTO(arquivo, playlist.size()));
+						playlist.add(new MusicDTO(arquivo, playlist.size()));
 						reloadJPlaylist();
 					} else { 
 						JOptionPane.showMessageDialog(null, "Erro ao carregar arquivo!");
@@ -169,8 +168,8 @@ public class PlayerGUI extends JFrame {
 		});
 		panelBotoesLista.add(btnAdd);
 		
-		for (MusicaDTO musica : playlist) {
-			listModelReproducao.addElement(musica.getNome());
+		for (MusicDTO musica : playlist) {
+			listModelReproducao.addElement(musica.getName());
 		}
 		
 		listReproducao.addMouseListener(new MouseAdapter() {
@@ -212,8 +211,8 @@ public class PlayerGUI extends JFrame {
 		int index = playlist.indexOf(selected);
 		
 		if (index > 0) {
-			playlist.get(index - 1).setPosicao(index);
-			selected.setPosicao(selected.getPosicao() - 1);
+			playlist.get(index - 1).setPosition(index);
+			selected.setPosition(selected.getPosition() - 1);
 			Collections.sort(playlist);
 			reloadJPlaylist();
 			listReproducao.setSelectedIndex(index-1);
@@ -225,8 +224,8 @@ public class PlayerGUI extends JFrame {
 		int index = playlist.indexOf(selected);
 		
 		if (index < playlist.size()-1) {
-			playlist.get(index + 1).setPosicao(index);
-			selected.setPosicao(selected.getPosicao() + 1);
+			playlist.get(index + 1).setPosition(index);
+			selected.setPosition(selected.getPosition() + 1);
 			Collections.sort(playlist);
 			reloadJPlaylist();
 			listReproducao.setSelectedIndex(index+1);
@@ -236,11 +235,11 @@ public class PlayerGUI extends JFrame {
 	public void reloadJPlaylist() {
 		// !TODO refazer mais bonito
 		listModelReproducao.clear();
-		for (MusicaDTO musica : playlist) {
-			listModelReproducao.addElement(musica.getNome());
+		for (MusicDTO musica : playlist) {
+			listModelReproducao.addElement(musica.getName());
 		}
 		
-		dao.gravar(playlist);
+		dao.imprint(playlist);
 	}
 	
 	/**

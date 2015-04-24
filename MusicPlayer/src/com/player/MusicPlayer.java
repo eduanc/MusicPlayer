@@ -1,10 +1,10 @@
 package com.player;
 
-import com.dto.MusicaDTO;
+import com.dto.MusicDTO;
 
 public interface MusicPlayer {
 	
-	public void play(MusicaDTO musica);
+	public void play(MusicDTO musica);
 	
 	public void pause();
 	

@@ -1,6 +1,6 @@
 package com.player;
 
-import com.dto.MusicaDTO;
+import com.dto.MusicDTO;
 import com.thread.GenericThread;
 import com.thread.ThreadMP3;
 
@@ -10,7 +10,7 @@ public class PlayerManager implements MusicPlayer {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void play(MusicaDTO music) {
+	public void play(MusicDTO music) {
 		if(currentThread == null){			
 			this.currentThread = new ThreadMP3(music);
 			this.currentThread.start();			

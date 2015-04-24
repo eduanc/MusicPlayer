@@ -4,20 +4,20 @@ import java.io.FileInputStream;
 
 import javazoom.jl.player.Player;
 
-import com.dto.MusicaDTO;
+import com.dto.MusicDTO;
 
 public class ThreadMP3 extends GenericThread {
 	
-	private MusicaDTO music;	
+	private MusicDTO music;	
 	
-	public ThreadMP3(MusicaDTO music) {
+	public ThreadMP3(MusicDTO music) {
 		this.music = music;
 	}
 	
 	@Override
 	public void run() {
 		try {			
-			new Player(new FileInputStream(this.music.getArquivo().getAbsolutePath())).play();			
+			new Player(new FileInputStream(this.music.getFile().getAbsolutePath())).play();			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
