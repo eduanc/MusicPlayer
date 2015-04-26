@@ -19,14 +19,11 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.KeyNotFoundException;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
-import org.jaudiotagger.tag.id3.ID3v24Frames;
-import org.jaudiotagger.tag.id3.ID3v24Tag;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -38,16 +35,15 @@ import com.util.DataUtil;
 
 public class MusicDAO {
 
-	final String FILENAME = "playlist";
-	final String PATH = "xml/";
+	private String path = "";
 
 	public MusicDAO(){
 		
 	}
 	
-	public MusicDAO(String filename, String path){
-		//this.FILENAME = filename;
-		//this.LOCALHOST = filename;
+	public MusicDAO(String path){		
+		this.path = path.substring(0, path.length() - 4);;
+		System.out.println(path);
 	}
 	
 	public boolean imprint(List<MusicDTO> list) {
@@ -82,7 +78,7 @@ public class MusicDAO {
 		XMLOutputter xout = new XMLOutputter();
 		try {
 			//criando o arquivo de saida
-			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(PATH +  FILENAME + ".xml"),"UTF-8"));
+			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path + ".xml"),"UTF-8"));
 			//imprimindo o xml no arquivo
 			xout.output(document, file);
 			return true;
@@ -99,7 +95,7 @@ public class MusicDAO {
 		Document doc = null;
 		SAXBuilder builder = new SAXBuilder();
 		try {
-			doc = builder.build(PATH + FILENAME + ".xml");
+			doc = builder.build(path + ".xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -125,7 +121,7 @@ public class MusicDAO {
 		return list;
 	}
 	
-	public void edit(List<MusicDTO> list, MusicDTO music){
+	public void edit(List<MusicDTO> playlist, MusicDTO music){
 		
 		try {
 			writeMetadata(music);
@@ -133,7 +129,7 @@ public class MusicDAO {
 			e.printStackTrace();
 		}
 		
-		imprint(list);
+		imprint(playlist);
 	}
 		
 	public void writeMetadata(MusicDTO music) throws IOException, SAXException, TikaException {			

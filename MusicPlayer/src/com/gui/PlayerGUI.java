@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class PlayerGUI extends JFrame {
 	private static JSlider progressBar;
 	private static JLabel lblInfoMusic;
 	
-	private MusicDAO dao = new MusicDAO();
+	private MusicDAO dao;	
 	private static MusicPlayer mPlayer = new PlayerManager(); 
 	
 	private static List<MusicDTO> playlist;
@@ -58,7 +59,7 @@ public class PlayerGUI extends JFrame {
 		setContentPane(this.contentPane);
 		this.contentPane.setLayout(null);
 		
-		playlist = this.dao.read();
+		playlist = new ArrayList<MusicDTO>();
 		
 		lblInfoMusic = new JLabel("Informações música");
 		lblInfoMusic.setBounds(12, -11, 426, 35);
@@ -80,12 +81,14 @@ public class PlayerGUI extends JFrame {
 		JButton btnPlay = new JButton(">");
 		btnPlay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (selected == null && playlist.size() > 0) {
-					selected = playlist.get(0);
-					reproductionList.setSelectedIndex(0);
-				}								
-				mPlayer.play(0, selected);
-				updateMusicInfo();
+				if(!playlist.isEmpty()){				
+					if (selected == null && playlist.size() > 0) {
+						selected = playlist.get(0);
+						reproductionList.setSelectedIndex(0);
+					}								
+					mPlayer.play(0, selected);
+					updateMusicInfo();
+				}
 			}
 		});
 		audioButtonsPanel.add(btnPlay);
@@ -130,7 +133,9 @@ public class PlayerGUI extends JFrame {
 		JButton buttonUp = new JButton("↑");
 		buttonUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				positionUp();
+				if(!playlist.isEmpty()){
+					positionUp();
+				}
 			}
 		});
 		listButtonsPanel.add(buttonUp);
@@ -138,20 +143,40 @@ public class PlayerGUI extends JFrame {
 		JButton buttonDown = new JButton("↓");
 		buttonDown.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				positionDown();
+				if(!playlist.isEmpty()){
+					positionDown();
+				}
 			}
 		});
 		listButtonsPanel.add(buttonDown);
 		
 		JButton btnEdit = new JButton("e");
+		btnEdit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!playlist.isEmpty()){
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								new TagEditionGUI(playlist, selected).setVisible(true);							
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+				}
+			}				
+		});
+		
 		listButtonsPanel.add(btnEdit);
 		
 		JButton btnExclude = new JButton("x");
 		btnExclude.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				playlist.remove(selected);
-				selected=null;
-				reloadJPlaylist();
+				if(!playlist.isEmpty()){
+					playlist.remove(selected);
+					selected=null;
+					reloadJPlaylist();
+				}
 			}
 		});
 		listButtonsPanel.add(btnExclude);
@@ -215,29 +240,46 @@ public class PlayerGUI extends JFrame {
 		panel.add(lblOpesDaPlaylist);
 		
 		JButton btnNova = new JButton("Nova");
+		btnNova.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				reproductionListModel.clear();
+				playlist.clear();
+			}
+		});		
 		btnNova.setBounds(251, 25, 125, 25);
 		panel.add(btnNova);
 		
 		JButton btnExportar = new JButton("Exportar");
+		btnExportar.addActionListener(new ActionListener() {			
+			public void actionPerformed(ActionEvent e) {	
+				dao.imprint(playlist);
+			}
+		});
 		btnExportar.setBounds(125, 25, 131, 25);
 		panel.add(btnExportar);
-		
-		JLabel label = new JLabel("");
-		label.setBounds(1, 25, 125, 25);
-		panel.add(label);
-		
+						
 		JButton btnImportar = new JButton("Importar");
+		btnImportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
+
+				int res = fc.showOpenDialog(null);
+				if (res == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					if(file != null) {
+						dao = new MusicDAO(file.getAbsolutePath());
+						playlist = dao.read();		
+						loadJPlaylist();
+					} else { 
+						JOptionPane.showMessageDialog(null, "Erro ao carregar arquivo!");
+					}
+				}
+			}
+		});
 		btnImportar.setBounds(1, 25, 125, 25);
 		panel.add(btnImportar);
-		
-		JLabel label_1 = new JLabel("");
-		label_1.setBounds(251, 25, 125, 25);
-		panel.add(label_1);
-		
-		for (MusicDTO music : playlist) {
-			reproductionListModel.addElement(music.getName());
-		}
-		
+			
 		reproductionList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -248,7 +290,7 @@ public class PlayerGUI extends JFrame {
 			}
 		});
 	}
-	
+			
 	private static int fixIndex(int index) {
 		if (index < 0) {
 			index = playlist.size()-1;
@@ -277,6 +319,12 @@ public class PlayerGUI extends JFrame {
 		mPlayer.autoChange(selected);
 	}
 	
+	public static void changeMusic(int op){
+		changeProcedures(op);
+		
+		mPlayer.change(selected);
+	}
+	
 	public static void startProgressBar(int value) {
 		if (threadProgressBar == null) {
 			threadProgressBar = new ThreadProgressBar(value, selected.getDuration(), progressBar);
@@ -302,13 +350,7 @@ public class PlayerGUI extends JFrame {
 		threadProgressBar = null;
 		
 	}
-	
-	public static void changeMusic(int op){
-		changeProcedures(op);
-		
-		mPlayer.change(selected);
-	}
-			
+				
 	private void positionUp() {
 		int index = playlist.indexOf(selected);
 		
@@ -333,6 +375,12 @@ public class PlayerGUI extends JFrame {
 			reproductionList.setSelectedIndex(index+1);
 		}
 	}
+		
+	private void loadJPlaylist(){
+		for (MusicDTO music : playlist) {
+			reproductionListModel.addElement(music.getName());
+		}
+	}
 	
 	public void reloadJPlaylist() {
 		// !TODO refazer mais bonito
@@ -351,8 +399,7 @@ public class PlayerGUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					PlayerGUI frame = new PlayerGUI();
-					frame.setVisible(true);
+					new PlayerGUI().setVisible(true);					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

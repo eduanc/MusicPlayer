@@ -25,16 +25,20 @@ public class PlayerManager implements MusicPlayer {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void pause() {
-		this.currentThread.suspend();
-		PlayerGUI.pauseProgressBar();
+		if(this.currentThread != null){			
+			this.currentThread.suspend();
+			PlayerGUI.pauseProgressBar();
+		}
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void stop() {		
-		this.currentThread.stop();
-		this.currentThread = null;
-		PlayerGUI.stopProgressBar();
+		if(this.currentThread != null){			
+			this.currentThread.stop();
+			this.currentThread = null;
+			PlayerGUI.stopProgressBar();
+		}
 	}
 	
 	@Override
