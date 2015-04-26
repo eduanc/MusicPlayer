@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -25,11 +27,14 @@ import com.dao.MusicDAO;
 import com.dto.MusicDTO;
 import com.player.MusicPlayer;
 import com.player.PlayerManager;
+import com.thread.ThreadProgressBar;
 
 public class PlayerGUI extends JFrame {
 	
 	private static final long serialVersionUID = 8487021165177117115L;
 	private JPanel contentPane;
+	private static JSlider progressBar;
+	private static JLabel lblInfoMusic;
 	
 	private MusicDAO dao = new MusicDAO();
 	private static MusicPlayer mPlayer = new PlayerManager(); 
@@ -39,6 +44,8 @@ public class PlayerGUI extends JFrame {
 	
 	private static JList<String> reproductionList;
 	private DefaultListModel<String> reproductionListModel;
+	
+	private static ThreadProgressBar threadProgressBar;
 	
 	/**
 	 * Create the frame.
@@ -53,7 +60,7 @@ public class PlayerGUI extends JFrame {
 		
 		playlist = this.dao.read();
 		
-		JLabel lblInfoMusic = new JLabel("Informações música");
+		lblInfoMusic = new JLabel("Informações música");
 		lblInfoMusic.setBounds(12, 0, 426, 50);
 		lblInfoMusic.setHorizontalAlignment(JLabel.CENTER);
 		this.contentPane.add(lblInfoMusic);
@@ -78,6 +85,7 @@ public class PlayerGUI extends JFrame {
 					reproductionList.setSelectedIndex(0);
 				}								
 				mPlayer.play(0, selected);
+				updateMusicInfo();
 			}
 		});
 		audioButtonsPanel.add(btnPlay);
@@ -168,6 +176,34 @@ public class PlayerGUI extends JFrame {
 		});
 		listButtonsPanel.add(btnAdd);
 		
+		progressBar = new JSlider();
+		progressBar.setValue(0);
+		progressBar.setBounds(12, 45, 426, 16);
+		contentPane.add(progressBar);
+		progressBar.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if(e.getSource() instanceof JSlider) {
+					int value = ((JSlider) e.getSource()).getValue() * selected.getDuration() / 100;
+					mPlayer.stop();
+					mPlayer.play(value, selected);
+				}
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) { }
+			
+			@Override
+			public void mouseExited(MouseEvent e) { }
+			
+			@Override
+			public void mouseEntered(MouseEvent e) { }
+			
+			@Override
+			public void mouseClicked(MouseEvent e) { }
+		});
+		
 		for (MusicDTO music : playlist) {
 			reproductionListModel.addElement(music.getName());
 		}
@@ -197,12 +233,44 @@ public class PlayerGUI extends JFrame {
 		
 		reproductionList.setSelectedIndex(index);
 		selected = playlist.get(index);
+		updateMusicInfo();
+	}
+	
+	private static void updateMusicInfo() {
+		lblInfoMusic.setText(selected.getName() + " - " + selected.getAuthor());
 	}
 	
 	public static void autoChangeMusic(int op){
 		changeProcedures(op);
-						
+		
+		stopProgressBar();
 		mPlayer.autoChange(selected);
+	}
+	
+	public static void startProgressBar(int value) {
+		if (threadProgressBar == null) {
+			threadProgressBar = new ThreadProgressBar(value, selected.getDuration(), progressBar);
+			threadProgressBar.start();
+		} else {
+			threadProgressBar.setValue(value);
+			threadProgressBar.setMax(selected.getDuration());
+			threadProgressBar.resume();
+		}
+	}
+	
+	public static void pauseProgressBar() {
+		threadProgressBar.suspend();
+	}
+	
+	public static void resumeProgressBar() {
+		threadProgressBar.resume();
+	}
+	
+	public static void stopProgressBar() {
+		//threadProgressBar.suspend();
+		threadProgressBar.stop();
+		threadProgressBar = null;
+		
 	}
 	
 	public static void changeMusic(int op){
