@@ -11,19 +11,45 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.tika.exception.TikaException;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.FieldDataInvalidException;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.KeyNotFoundException;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.id3.ID3v24Frames;
+import org.jaudiotagger.tag.id3.ID3v24Tag;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.xml.sax.SAXException;
 
 import com.dto.MusicDTO;
 import com.util.DataUtil;
 
 public class MusicDAO {
 
-	final static String FILENAME = "playlist";
-	final static String LOCALHOST = "xml/";
+	final String FILENAME = "playlist";
+	final String PATH = "xml/";
 
+	public MusicDAO(){
+		
+	}
+	
+	public MusicDAO(String filename, String path){
+		//this.FILENAME = filename;
+		//this.LOCALHOST = filename;
+	}
+	
 	public boolean imprint(List<MusicDTO> list) {
 		Element config = new Element("playlist");
 		Document document = new Document(config);
@@ -37,6 +63,7 @@ public class MusicDAO {
 			
 			Element name = new Element("name").setText(item.getName());
 			Element author = new Element("author").setText(item.getAuthor());
+			Element album = new Element("album").setText(item.getAlbum());
 			Element file = new Element("file").setText(item.getFile().getAbsolutePath());
 			Element position = new Element("position").setText(item.getPosition()+"");
 			Element duration = new Element("duration").setText(item.getDuration()+"");
@@ -44,6 +71,7 @@ public class MusicDAO {
 			
 			music.addContent(name);
 			music.addContent(author);
+			music.addContent(album);
 			music.addContent(file);
 			music.addContent(position);
 			music.addContent(duration);
@@ -54,7 +82,7 @@ public class MusicDAO {
 		XMLOutputter xout = new XMLOutputter();
 		try {
 			//criando o arquivo de saida
-			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(LOCALHOST +  FILENAME + ".xml"),"UTF-8"));
+			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(PATH +  FILENAME + ".xml"),"UTF-8"));
 			//imprimindo o xml no arquivo
 			xout.output(document, file);
 			return true;
@@ -71,7 +99,7 @@ public class MusicDAO {
 		Document doc = null;
 		SAXBuilder builder = new SAXBuilder();
 		try {
-			doc = builder.build(LOCALHOST + FILENAME + ".xml");
+			doc = builder.build(PATH + FILENAME + ".xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -84,6 +112,7 @@ public class MusicDAO {
 			MusicDTO music = new MusicDTO();
 			music.setName(element.getChildText("name"));
 			music.setAuthor(element.getChildText("author"));
+			music.setAlbum(element.getChildText("album"));
 			music.setFile(new File(element.getChildText("file")));
 			music.setPosition(Integer.parseInt(element.getChildText("position")));
 			music.setDuration(Integer.parseInt(element.getChildText("duration")));
@@ -95,4 +124,120 @@ public class MusicDAO {
 		
 		return list;
 	}
+	
+	public void edit(List<MusicDTO> list, MusicDTO music){
+		
+		try {
+			writeMetadata(music);
+		} catch (IOException | SAXException | TikaException e) {
+			e.printStackTrace();
+		}
+		
+		imprint(list);
+	}
+		
+	public void writeMetadata(MusicDTO music) throws IOException, SAXException, TikaException {			
+		AudioFile f = null;
+		try {
+			f = AudioFileIO.read(music.getFile());
+		} catch (CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
+			e.printStackTrace();
+		}
+		
+		Tag tag =  f.getTag();
+						
+		try {
+			tag.setField(FieldKey.ARTIST, music.getAuthor());
+			tag.setField(FieldKey.TITLE, music.getName());
+			tag.setField(FieldKey.ALBUM, music.getAlbum());			
+			
+		} catch (KeyNotFoundException | FieldDataInvalidException e) { 
+			e.printStackTrace();
+		}
+			
+		try {
+			AudioFileIO.write(f);
+			f.commit();
+		} catch (CannotWriteException e) {
+			e.printStackTrace();
+		}		
+		
+		loadMetaData(music);
+	}
+	
+	public void loadMetaData(MusicDTO music) throws IOException, SAXException, TikaException {				      
+		AudioFile f = null;
+		try {
+			f = AudioFileIO.read(music.getFile());
+		} catch (CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
+			e.printStackTrace();
+		}
+		AudioHeader audioHeader = f.getAudioHeader();
+		Tag tag = f.getTag();		
+		
+		music.setAuthor(tag.getFirst(FieldKey.ARTIST));
+		music.setName(tag.getFirst(FieldKey.TITLE));
+		music.setAlbum(tag.getFirst(FieldKey.ALBUM));
+		music.setDuration(audioHeader.getTrackLength()*1000);
+		music.setFormat(music.readFormat());			
+	}
+			
+	/*
+	public void writeMetadata(MusicDTO music) throws IOException, SAXException, TikaException {		
+		InputStream input = new FileInputStream(music.getFile());
+		ContentHandler handler = new DefaultHandler();
+		Metadata metadata = new Metadata();
+		Parser parser = new Mp3Parser();
+		ParseContext parseCtx = new ParseContext();
+		parser.parse(input, handler, metadata, parseCtx);
+		
+		metadata.set("title", music.getName());
+		metadata.set("meta:author", music.getAuthor());
+		metadata.set("xmpDM:duration", music.getDuration()+"");										
+						
+	
+		System.out.println(input.available());
+		
+		/*
+	    byte[] buffer = new byte[input.available()];
+	    input.read(buffer);
+	 	    
+	    
+	    File targetFile = new File(music.getFile().getAbsolutePath());
+	    OutputStream outStream = new FileOutputStream(targetFile);
+	    outStream.write(buffer);
+	    outStream.close();
+		input.close();
+	    
+		System.out.println(metadata.get("meta:author"));
+		//loadMetaData(music);
+		 * 		 
+	}		
+	
+	public void loadMetaData(MusicDTO music) throws IOException, SAXException, TikaException {
+		InputStream input = new FileInputStream(music.getFile());
+		ContentHandler handler = new DefaultHandler();
+		Metadata metadata = new Metadata();
+		Parser parser = new Mp3Parser();
+		ParseContext parseCtx = new ParseContext();
+		parser.parse(input, handler, metadata, parseCtx);
+		input.close();
+		
+		System.out.println(metadata.get("meta:author"));
+		
+		music.setName(metadata.get("title") != null ? metadata.get("title") : "");		
+		music.setAuthor(metadata.get("meta:author") != null ? metadata.get("meta:author") : "");
+		music.setDuration(metadata.get("xmpDM:duration") != null ? (int) Float.parseFloat(metadata.get("xmpDM:duration")) : 0);
+		music.setFormat(music.readFormat());
+		
+		
+		
+		// List all metadata
+		/*
+		String[] metadataNames = metadata.names();
+		 
+		for(String name : metadataNames){
+			System.out.println(name + ": " + metadata.get(name));
+		}
+	}*/
 }

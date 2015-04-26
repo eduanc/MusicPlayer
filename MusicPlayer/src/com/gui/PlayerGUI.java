@@ -52,7 +52,7 @@ public class PlayerGUI extends JFrame {
 	 */
 	public PlayerGUI() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 450, 300);
+		setBounds(0, 0, 479, 310);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
@@ -61,12 +61,12 @@ public class PlayerGUI extends JFrame {
 		playlist = this.dao.read();
 		
 		lblInfoMusic = new JLabel("Informações música");
-		lblInfoMusic.setBounds(12, 0, 426, 50);
+		lblInfoMusic.setBounds(12, -11, 426, 35);
 		lblInfoMusic.setHorizontalAlignment(JLabel.CENTER);
 		this.contentPane.add(lblInfoMusic);
 		
 		JPanel audioButtonsPanel = new JPanel();
-		audioButtonsPanel.setBounds(12, 62, 426, 50);
+		audioButtonsPanel.setBounds(12, 23, 426, 35);
 		this.contentPane.add(audioButtonsPanel);
 		
 		JButton btnPrevious = new JButton("«");
@@ -178,7 +178,7 @@ public class PlayerGUI extends JFrame {
 		
 		progressBar = new JSlider();
 		progressBar.setValue(0);
-		progressBar.setBounds(12, 45, 426, 16);
+		progressBar.setBounds(12, 58, 426, 16);
 		contentPane.add(progressBar);
 		progressBar.addMouseListener(new MouseListener() {
 			
@@ -203,6 +203,36 @@ public class PlayerGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) { }
 		});
+		
+
+		JPanel panel = new JPanel();
+		panel.setBounds(12, 70, 377, 51);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblOpesDaPlaylist = new JLabel("Opções da Playlist:");
+		lblOpesDaPlaylist.setBounds(120, 0, 136, 25);
+		panel.add(lblOpesDaPlaylist);
+		
+		JButton btnNova = new JButton("Nova");
+		btnNova.setBounds(251, 25, 125, 25);
+		panel.add(btnNova);
+		
+		JButton btnExportar = new JButton("Exportar");
+		btnExportar.setBounds(125, 25, 131, 25);
+		panel.add(btnExportar);
+		
+		JLabel label = new JLabel("");
+		label.setBounds(1, 25, 125, 25);
+		panel.add(label);
+		
+		JButton btnImportar = new JButton("Importar");
+		btnImportar.setBounds(1, 25, 125, 25);
+		panel.add(btnImportar);
+		
+		JLabel label_1 = new JLabel("");
+		label_1.setBounds(251, 25, 125, 25);
+		panel.add(label_1);
 		
 		for (MusicDTO music : playlist) {
 			reproductionListModel.addElement(music.getName());

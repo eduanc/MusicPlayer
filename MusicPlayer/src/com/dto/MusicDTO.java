@@ -1,18 +1,12 @@
 package com.dto;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.mp3.Mp3Parser;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+
+import com.dao.MusicDAO;
 
 public class MusicDTO implements Comparable<MusicDTO> {
 	public static final int F_DESCONHECIDO = -1;
@@ -23,6 +17,7 @@ public class MusicDTO implements Comparable<MusicDTO> {
 
 	private String name;
 	private String author;
+	private String album;
 	private File file;
 	private int position;
 	private int duration;
@@ -36,13 +31,13 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		this.file = file;
 		this.position = position;
 		try {
-			loadMetaData();
+			new MusicDAO().loadMetaData(this);
 		} catch (IOException | SAXException | TikaException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private int readFormat() {
+	public int readFormat() {
 		String format = file.getName().split("\\.", -1)[0].toLowerCase();
 		
 		//TODO: outros formatos
@@ -60,46 +55,7 @@ public class MusicDTO implements Comparable<MusicDTO> {
 			return F_DESCONHECIDO;
 		}		 	
 	}
-	
-	public void loadMetaData() throws IOException, SAXException, TikaException {
-		InputStream input = new FileInputStream(file);
-		ContentHandler handler = new DefaultHandler();
-		Metadata metadata = new Metadata();
-		Parser parser = new Mp3Parser();
-		ParseContext parseCtx = new ParseContext();
-		parser.parse(input, handler, metadata, parseCtx);
-		input.close();
-		
-		this.setName(metadata.get("title") != null ? metadata.get("title") : "");		
-		this.setAuthor(metadata.get("meta:author") != null ? metadata.get("meta:author") : "");
-		this.setDuration(metadata.get("xmpDM:duration") != null ? (int) Float.parseFloat(metadata.get("xmpDM:duration")) : 0);
-		this.setFormat(readFormat());
-		
-		// List all metadata
-		/*
-		String[] metadataNames = metadata.names();
-		 
-		for(String name : metadataNames){
-			System.out.println(name + ": " + metadata.get(name));
-		}*/
-	}
-	
-	public void writeMetadata () throws IOException, SAXException, TikaException {
-		InputStream input = new FileInputStream(file);
-		ContentHandler handler = new DefaultHandler();
-		Metadata metadata = new Metadata();
-		Parser parser = new Mp3Parser();
-		ParseContext parseCtx = new ParseContext();
-		parser.parse(input, handler, metadata, parseCtx);
-		
-		metadata.set("title", this.getName());
-		metadata.set("meta:author", this.getAuthor());
-		metadata.set("xmpDM:duration", (int) this.getDuration()+"");
-		
-		input.close();
-		System.out.println(metadata.get("title"));
-	}
-	
+			
 	public String getName() {
 		return name;
 	}
@@ -116,6 +72,14 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		this.author = author;
 	}
 
+	public String getAlbum() {
+		return album;
+	}
+
+	public void setAlbum(String album) {
+		this.album = album;
+	}
+	
 	public File getFile() {
 		return file;
 	}
@@ -166,6 +130,8 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		builder.append(name);
 		builder.append(", author=");
 		builder.append(author);
+		builder.append(", album=");
+		builder.append(album);
 		builder.append(", file=");
 		builder.append(file);
 		builder.append(", position=");
