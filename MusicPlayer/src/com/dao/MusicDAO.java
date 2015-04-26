@@ -42,10 +42,9 @@ public class MusicDAO {
 	}
 	
 	public MusicDAO(String path){		
-		this.path = path.substring(0, path.length() - 4);;
-		System.out.println(path);
+		this.path = path;
 	}
-	
+			
 	public boolean imprint(List<MusicDTO> list) {
 		Element config = new Element("playlist");
 		Document document = new Document(config);
@@ -77,8 +76,8 @@ public class MusicDAO {
 		
 		XMLOutputter xout = new XMLOutputter();
 		try {
-			//criando o arquivo de saida
-			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path + ".xml"),"UTF-8"));
+			//criando o arquivo de saida			
+			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path),"UTF-8"));
 			//imprimindo o xml no arquivo
 			xout.output(document, file);
 			return true;
@@ -95,7 +94,7 @@ public class MusicDAO {
 		Document doc = null;
 		SAXBuilder builder = new SAXBuilder();
 		try {
-			doc = builder.build(path + ".xml");
+			doc = builder.build(path);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

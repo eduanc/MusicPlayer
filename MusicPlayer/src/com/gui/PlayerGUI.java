@@ -251,8 +251,14 @@ public class PlayerGUI extends JFrame {
 		
 		JButton btnExportar = new JButton("Exportar");
 		btnExportar.addActionListener(new ActionListener() {			
-			public void actionPerformed(ActionEvent e) {	
-				dao.imprint(playlist);
+			public void actionPerformed(ActionEvent e) {				
+			    JFileChooser fc = new JFileChooser();
+			    // Demonstrate "Save" dialog:
+			    int rVal = fc.showSaveDialog(null);
+			    if (rVal == JFileChooser.APPROVE_OPTION) {
+			    	dao = new MusicDAO(fc.getCurrentDirectory().toString()+"/"+fc.getSelectedFile().getName()+".xml");
+			    	dao.imprint(playlist);
+			    }			    		   			    
 			}
 		});
 		btnExportar.setBounds(125, 25, 131, 25);
