@@ -128,7 +128,9 @@ public class MusicDAO {
 			e.printStackTrace();
 		}
 		
-		imprint(playlist);
+		if(!path.equals("")){
+			imprint(playlist);
+		}
 	}
 		
 	public void writeMetadata(MusicDTO music) throws IOException, SAXException, TikaException {			

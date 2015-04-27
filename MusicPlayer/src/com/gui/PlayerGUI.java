@@ -234,9 +234,9 @@ public class PlayerGUI extends JFrame {
 		JButton btnNova = new JButton("Nova");
 		btnNova.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//reproductionListModel.clear();
 				playlist.clear();
 				reproductionTable = new JTable(getMusicTableData(), getMusicTableNames());
+				dao = null;
 			}
 		});		
 		btnNova.setBounds(251, 25, 125, 25);
@@ -327,7 +327,6 @@ public class PlayerGUI extends JFrame {
 	private static void changeProcedures(int op){
 		int index = fixIndex(playlist.indexOf(selected) + op);
 		
-		//reproductionList.setSelectedIndex(index);
 		reproductionTable.setRowSelectionInterval(index, index);
 		selected = playlist.get(index);
 		updateMusicInfo();
@@ -388,7 +387,6 @@ public class PlayerGUI extends JFrame {
 			selected.setPosition(selected.getPosition() - 1);
 			Collections.sort(playlist);
 			reloadJPlaylist();
-			//reproductionList.setSelectedIndex(index-1);
 			reproductionTable.setRowSelectionInterval(index-1, index-1);
 		}
 		
@@ -402,7 +400,6 @@ public class PlayerGUI extends JFrame {
 			selected.setPosition(selected.getPosition() + 1);
 			Collections.sort(playlist);
 			reloadJPlaylist();
-			//reproductionList.setSelectedIndex(index+1);
 			reproductionTable.setRowSelectionInterval(index+1, index+1);
 		}
 	}
@@ -414,7 +411,9 @@ public class PlayerGUI extends JFrame {
 	public void reloadJPlaylist() {
 		reproductionTable.setModel(new DefaultTableModel(getMusicTableData(), getMusicTableNames()));
 		
-		this.dao.imprint(playlist);
+		if(this.dao != null){
+			this.dao.imprint(playlist);
+		}
 	}
 	
 	/**
@@ -424,7 +423,8 @@ public class PlayerGUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new PlayerGUI().setVisible(true);					
+					PlayerGUI playerGUI = new PlayerGUI();
+					playerGUI.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
