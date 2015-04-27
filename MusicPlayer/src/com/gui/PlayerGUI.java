@@ -11,18 +11,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 import com.dao.MusicDAO;
 import com.dto.MusicDTO;
@@ -43,8 +44,7 @@ public class PlayerGUI extends JFrame {
 	private static List<MusicDTO> playlist;
 	private static MusicDTO selected = null;
 	
-	private static JList<String> reproductionList;
-	private DefaultListModel<String> reproductionListModel;
+	private static JTable reproductionTable;
 	
 	private static ThreadProgressBar threadProgressBar;
 	
@@ -84,7 +84,8 @@ public class PlayerGUI extends JFrame {
 				if(!playlist.isEmpty()){				
 					if (selected == null && playlist.size() > 0) {
 						selected = playlist.get(0);
-						reproductionList.setSelectedIndex(0);
+						//reproductionList.setSelectedIndex(0);
+						reproductionTable.setRowSelectionInterval(0, 0);
 					}								
 					mPlayer.play(0, selected);
 					updateMusicInfo();
@@ -117,15 +118,6 @@ public class PlayerGUI extends JFrame {
 		});
 		audioButtonsPanel.add(btnProxima);
 		
-		JScrollPane reproductionScrollPane = new JScrollPane();
-		reproductionScrollPane.setBounds(12, 124, 377, 136);
-		this.contentPane.add(reproductionScrollPane);
-		
-		this.reproductionListModel = new DefaultListModel<String>();
-		
-		reproductionList = new JList<String>(this.reproductionListModel);
-		reproductionScrollPane.setViewportView(reproductionList);
-		
 		JPanel listButtonsPanel = new JPanel();
 		listButtonsPanel.setBounds(400, 107, 50, 153);
 		this.contentPane.add(listButtonsPanel);
@@ -153,7 +145,7 @@ public class PlayerGUI extends JFrame {
 		JButton btnEdit = new JButton("e");
 		btnEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(!playlist.isEmpty()){
+				if(!playlist.isEmpty() &&  selected != null){
 					EventQueue.invokeLater(new Runnable() {
 						public void run() {
 							try {
@@ -242,8 +234,9 @@ public class PlayerGUI extends JFrame {
 		JButton btnNova = new JButton("Nova");
 		btnNova.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				reproductionListModel.clear();
+				//reproductionListModel.clear();
 				playlist.clear();
+				reproductionTable = new JTable(getMusicTableData(), getMusicTableNames());
 			}
 		});		
 		btnNova.setBounds(251, 25, 125, 25);
@@ -285,16 +278,41 @@ public class PlayerGUI extends JFrame {
 		});
 		btnImportar.setBounds(1, 25, 125, 25);
 		panel.add(btnImportar);
-			
-		reproductionList.addMouseListener(new MouseAdapter() {
+		
+		
+		reproductionTable = new JTable();
+		reproductionTable.setModel(new DefaultTableModel(getMusicTableData(), getMusicTableNames()));
+		reproductionTable.setBounds(0, 0, 377, 377);
+		reproductionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		reproductionTable.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				int index = reproductionList.locationToIndex(e.getPoint());
+			public void mouseReleased(MouseEvent e) {
+				int index = reproductionTable.getSelectedRow();
 				if (index >= 0) {
 					selected = playlist.get(index);
 				}
 			}
 		});
+		
+		JScrollPane reproductionScrollPane = new JScrollPane();
+		reproductionScrollPane.setBounds(12, 124, 377, 136);
+		reproductionScrollPane.setViewportView(reproductionTable);
+		this.contentPane.add(reproductionScrollPane);
+	};
+	
+	private String[] getMusicTableNames() {
+		return new String[] {"Title", "Author", "Album"};
+	}
+	
+	private String[][] getMusicTableData() {
+		String[][] names = new String[playlist.size()][3];
+		for(int i = 0; i < playlist.size(); i++) {
+			names[i][0] = playlist.get(i).getName();
+			names[i][1] = playlist.get(i).getAuthor();
+			names[i][2] = playlist.get(i).getAlbum();
+		}
+		
+		return names;
 	}
 			
 	private static int fixIndex(int index) {
@@ -309,7 +327,8 @@ public class PlayerGUI extends JFrame {
 	private static void changeProcedures(int op){
 		int index = fixIndex(playlist.indexOf(selected) + op);
 		
-		reproductionList.setSelectedIndex(index);
+		//reproductionList.setSelectedIndex(index);
+		reproductionTable.setRowSelectionInterval(index, index);
 		selected = playlist.get(index);
 		updateMusicInfo();
 	}
@@ -331,6 +350,7 @@ public class PlayerGUI extends JFrame {
 		mPlayer.change(selected);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void startProgressBar(int value) {
 		if (threadProgressBar == null) {
 			threadProgressBar = new ThreadProgressBar(value, selected.getDuration(), progressBar);
@@ -342,14 +362,17 @@ public class PlayerGUI extends JFrame {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void pauseProgressBar() {
 		threadProgressBar.suspend();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void resumeProgressBar() {
 		threadProgressBar.resume();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void stopProgressBar() {
 		//threadProgressBar.suspend();
 		threadProgressBar.stop();
@@ -360,12 +383,13 @@ public class PlayerGUI extends JFrame {
 	private void positionUp() {
 		int index = playlist.indexOf(selected);
 		
-		if (index > 0) {
+		if (index > 0  && selected != null) {
 			playlist.get(index - 1).setPosition(index);
 			selected.setPosition(selected.getPosition() - 1);
 			Collections.sort(playlist);
 			reloadJPlaylist();
-			reproductionList.setSelectedIndex(index-1);
+			//reproductionList.setSelectedIndex(index-1);
+			reproductionTable.setRowSelectionInterval(index-1, index-1);
 		}
 		
 	}
@@ -373,27 +397,22 @@ public class PlayerGUI extends JFrame {
 	private void positionDown() {
 		int index = playlist.indexOf(selected);
 		
-		if (index < playlist.size()-1) {
+		if (index < playlist.size()-1 && selected != null) {
 			playlist.get(index + 1).setPosition(index);
 			selected.setPosition(selected.getPosition() + 1);
 			Collections.sort(playlist);
 			reloadJPlaylist();
-			reproductionList.setSelectedIndex(index+1);
+			//reproductionList.setSelectedIndex(index+1);
+			reproductionTable.setRowSelectionInterval(index+1, index+1);
 		}
 	}
 		
 	private void loadJPlaylist(){
-		for (MusicDTO music : playlist) {
-			reproductionListModel.addElement(music.getName());
-		}
+		reproductionTable.setModel(new DefaultTableModel(getMusicTableData(), getMusicTableNames()));
 	}
 	
 	public void reloadJPlaylist() {
-		// !TODO refazer mais bonito
-		this.reproductionListModel.clear();
-		for (MusicDTO music : playlist) {
-			this.reproductionListModel.addElement(music.getName());
-		}
+		reproductionTable.setModel(new DefaultTableModel(getMusicTableData(), getMusicTableNames()));
 		
 		this.dao.imprint(playlist);
 	}

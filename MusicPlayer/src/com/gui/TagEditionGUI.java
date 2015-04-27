@@ -25,7 +25,6 @@ public class TagEditionGUI extends JFrame{
 	private JTextField tfAlbum;
 		
 	public TagEditionGUI(List<MusicDTO> playlist, MusicDTO music) {				
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 219, 206);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
