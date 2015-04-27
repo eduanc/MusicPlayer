@@ -38,7 +38,8 @@ public class MusicDTO implements Comparable<MusicDTO> {
 	}
 
 	public int readFormat() {
-		String format = file.getName().split("\\.", -1)[0].toLowerCase();
+		String[] split = file.getName().split ("\\.");
+		String format = split[split.length - 1].toLowerCase();
 		
 		//TODO: outros formatos
 		
@@ -121,6 +122,17 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		} else {
 			return this.getName().compareTo(o.getName());
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof MusicDTO
+				&& ((MusicDTO) obj).getFile().getAbsolutePath().equals(this.getFile().getAbsolutePath());
+	}
+
+	@Override
+	public int hashCode() {
+		return file.getAbsolutePath().hashCode();
 	}
 
 	@Override

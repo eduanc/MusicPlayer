@@ -1,5 +1,6 @@
 package com.player;
 
+import com.dao.MusicDAO;
 import com.dto.MusicDTO;
 import com.gui.PlayerGUI;
 import com.thread.GenericThread;
@@ -16,6 +17,10 @@ public class PlayerManager implements MusicPlayer {
 			this.currentThread = new ThreadMP3(begin / 26, music);			
 			this.currentThread.start();
 			PlayerGUI.startProgressBar(begin);
+			
+			if (begin == 0) {
+				new MusicDAO().incrementMostPlayed(music);
+			}
 		} else if(this.currentThread.isAlive()){
 			this.currentThread.resume();
 			PlayerGUI.resumeProgressBar();

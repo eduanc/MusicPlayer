@@ -61,7 +61,7 @@ public class PlayerGUI extends JFrame {
 		
 		playlist = new ArrayList<MusicDTO>();
 		
-		lblInfoMusic = new JLabel("Informações música");
+		lblInfoMusic = new JLabel(" ");
 		lblInfoMusic.setBounds(12, -11, 426, 35);
 		lblInfoMusic.setHorizontalAlignment(JLabel.CENTER);
 		this.contentPane.add(lblInfoMusic);
@@ -119,7 +119,7 @@ public class PlayerGUI extends JFrame {
 		audioButtonsPanel.add(btnProxima);
 		
 		JPanel listButtonsPanel = new JPanel();
-		listButtonsPanel.setBounds(400, 107, 50, 153);
+		listButtonsPanel.setBounds(417, 120, 50, 158);
 		this.contentPane.add(listButtonsPanel);
 		
 		JButton buttonUp = new JButton("↑");
@@ -223,7 +223,7 @@ public class PlayerGUI extends JFrame {
 		
 
 		JPanel panel = new JPanel();
-		panel.setBounds(12, 70, 377, 51);
+		panel.setBounds(12, 70, 403, 51);
 		contentPane.add(panel);
 		panel.setLayout(null);
 		
@@ -234,12 +234,11 @@ public class PlayerGUI extends JFrame {
 		JButton btnNova = new JButton("Nova");
 		btnNova.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				playlist.clear();
+				playlist = new  ArrayList<MusicDTO>();
 				reproductionTable = new JTable(getMusicTableData(), getMusicTableNames());
-				dao = null;
 			}
 		});		
-		btnNova.setBounds(251, 25, 125, 25);
+		btnNova.setBounds(191, 25, 69, 25);
 		panel.add(btnNova);
 		
 		JButton btnExportar = new JButton("Exportar");
@@ -254,7 +253,7 @@ public class PlayerGUI extends JFrame {
 			    }			    		   			    
 			}
 		});
-		btnExportar.setBounds(125, 25, 131, 25);
+		btnExportar.setBounds(96, 25, 95, 25);
 		panel.add(btnExportar);
 						
 		JButton btnImportar = new JButton("Importar");
@@ -276,8 +275,29 @@ public class PlayerGUI extends JFrame {
 				}
 			}
 		});
-		btnImportar.setBounds(1, 25, 125, 25);
+		btnImportar.setBounds(1, 25, 95, 25);
 		panel.add(btnImportar);
+		
+
+		JButton btnMostPlayed = new JButton("Mais Tocadas");
+		btnMostPlayed.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							new MostPlayedGUI().setVisible(true);					
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		});
+		btnMostPlayed.setBounds(260, 25, 142, 25);
+		panel.add(btnMostPlayed);
+
 		
 		
 		reproductionTable = new JTable();
@@ -295,7 +315,7 @@ public class PlayerGUI extends JFrame {
 		});
 		
 		JScrollPane reproductionScrollPane = new JScrollPane();
-		reproductionScrollPane.setBounds(12, 124, 377, 136);
+		reproductionScrollPane.setBounds(12, 124, 403, 154);
 		reproductionScrollPane.setViewportView(reproductionTable);
 		this.contentPane.add(reproductionScrollPane);
 	};

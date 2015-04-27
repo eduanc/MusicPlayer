@@ -8,8 +8,10 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.tika.exception.TikaException;
 import org.jaudiotagger.audio.AudioFile;
@@ -36,6 +38,7 @@ import com.util.DataUtil;
 public class MusicDAO {
 
 	private String path = "";
+	private final String MOST_PLAYED_PATH = "xml/mostPlayed.xml";
 
 	public MusicDAO(){
 		
@@ -118,6 +121,122 @@ public class MusicDAO {
 		Collections.sort(list);
 		
 		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public HashMap<MusicDTO, Integer> readMostPlayed() {
+		
+		HashMap<MusicDTO, Integer> map = new HashMap<MusicDTO,Integer>();
+		Document doc = null;
+		SAXBuilder builder = new SAXBuilder();
+		try {
+			doc = builder.build(MOST_PLAYED_PATH);
+		} catch (Exception e) {
+			//e.printStackTrace();
+			return new HashMap<MusicDTO, Integer>();
+		}
+		
+		Element config = doc.getRootElement();
+		List<Element> playlist = config.getChildren("music");
+		
+		for (Iterator<Element> item = playlist.iterator(); item.hasNext();) {
+			Element element = (Element) item.next();
+			MusicDTO music = new MusicDTO();
+			music.setName(element.getChildText("name"));
+			music.setAuthor(element.getChildText("author"));
+			music.setAlbum(element.getChildText("album"));
+			music.setFile(new File(element.getChildText("file")));
+			music.setPosition(Integer.parseInt(element.getChildText("position")));
+			music.setDuration(Integer.parseInt(element.getChildText("duration")));
+			music.setFormat(Integer.parseInt(element.getChildText("format")));
+			int counter = Integer.parseInt(element.getChildText("counter"));
+			map.put(music, counter);
+		}
+		
+		return map;
+	}
+	
+	public Integer getMostPlayedTotal() {
+		Document doc = null;
+		SAXBuilder builder = new SAXBuilder();
+		try {
+			doc = builder.build(MOST_PLAYED_PATH);
+		} catch (Exception e) {
+			//we.printStackTrace();
+			return 0;
+		}
+		
+		Element config = doc.getRootElement();
+		if (config.getChildText("total") != null) {
+			return Integer.parseInt(config.getChildText("total"));
+		} else {
+			return 0;
+		}
+	}
+	
+	public boolean imprintMostPlayed(HashMap<MusicDTO, Integer> map) {
+		Element config = new Element("playlist");
+		Document document = new Document(config);
+		
+		Element date = new Element("date");
+		date.setText(DataUtil.DataHoraForStringPadraoH(new Date()));
+		config.addContent(date);
+		
+		Iterator<Map.Entry<MusicDTO, Integer>> it = map.entrySet().iterator();
+		int total = 0;
+	    while (it.hasNext()) {
+	        Map.Entry<MusicDTO, Integer> pair = it.next();
+	        MusicDTO item = pair.getKey();
+	        int itemCounter = pair.getValue();
+	        Element music = new Element("music");
+			
+			Element name = new Element("name").setText(item.getName());
+			Element author = new Element("author").setText(item.getAuthor());
+			Element album = new Element("album").setText(item.getAlbum());
+			Element file = new Element("file").setText(item.getFile().getAbsolutePath());
+			Element position = new Element("position").setText(item.getPosition()+"");
+			Element duration = new Element("duration").setText(item.getDuration()+"");
+			Element format = new Element("format").setText(item.getFormat()+"");
+			Element counter = new Element("counter").setText(itemCounter+"");
+			
+			music.addContent(name);
+			music.addContent(author);
+			music.addContent(album);
+			music.addContent(file);
+			music.addContent(position);
+			music.addContent(duration);
+			music.addContent(format);
+			music.addContent(counter);
+			config.addContent(music);
+			
+			total += itemCounter;
+	        
+	        it.remove();
+	    }
+	    
+	    Element elTotal = new Element("total");
+	    elTotal.setText(total+"");
+	    config.addContent(elTotal);
+	    
+	    XMLOutputter xout = new XMLOutputter();
+		try {
+			//criando o arquivo de saida			
+			BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(MOST_PLAYED_PATH),"UTF-8"));
+			//imprimindo o xml no arquivo
+			xout.output(document, file);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	
+	public void incrementMostPlayed(MusicDTO music) {
+		HashMap<MusicDTO, Integer> map = readMostPlayed();
+		int c = map.get(music) == null ? 1 : map.get(music) + 1;
+		map.put(music, c);
+		imprintMostPlayed(map);
 	}
 	
 	public void edit(List<MusicDTO> playlist, MusicDTO music){
