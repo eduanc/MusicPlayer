@@ -235,7 +235,8 @@ public class PlayerGUI extends JFrame {
 		btnNova.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				playlist = new  ArrayList<MusicDTO>();
-				reproductionTable = new JTable(getMusicTableData(), getMusicTableNames());
+				//reproductionTable = new JTable(getMusicTableData(), getMusicTableNames());
+				reproductionTable.setModel(new DefaultTableModel(getMusicTableData(), getMusicTableNames()));
 			}
 		});		
 		btnNova.setBounds(191, 25, 69, 25);
@@ -394,6 +395,7 @@ public class PlayerGUI extends JFrame {
 	@SuppressWarnings("deprecation")
 	public static void stopProgressBar() {
 		//threadProgressBar.suspend();
+		progressBar.setValue(0);
 		threadProgressBar.stop();
 		threadProgressBar = null;
 		
