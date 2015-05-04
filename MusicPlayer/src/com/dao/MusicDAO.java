@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tika.exception.TikaException;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -245,7 +244,7 @@ public class MusicDAO {
 		
 		try {
 			writeMetadata(music);
-		} catch (IOException | SAXException | TikaException e) {
+		} catch (IOException | SAXException  e) {
 			e.printStackTrace();
 		}
 		
@@ -254,7 +253,7 @@ public class MusicDAO {
 		}
 	}
 		
-	public void writeMetadata(MusicDTO music) throws IOException, SAXException, TikaException {			
+	public void writeMetadata(MusicDTO music) throws IOException, SAXException {			
 		AudioFile f = null;
 		try {
 			f = AudioFileIO.read(music.getFile());
@@ -283,7 +282,7 @@ public class MusicDAO {
 		loadMetaData(music);
 	}
 	
-	public void loadMetaData(MusicDTO music) throws IOException, SAXException, TikaException {				      
+	public void loadMetaData(MusicDTO music) throws IOException, SAXException {				      
 		AudioFile f = null;
 		try {
 			f = AudioFileIO.read(music.getFile());

@@ -3,7 +3,6 @@ package com.dto;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.tika.exception.TikaException;
 import org.xml.sax.SAXException;
 
 import com.dao.MusicDAO;
@@ -32,7 +31,7 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		this.position = position;
 		try {
 			new MusicDAO().loadMetaData(this);
-		} catch (IOException | SAXException | TikaException e) {
+		} catch (IOException | SAXException e) {
 			e.printStackTrace();
 		}
 	}
