@@ -37,6 +37,7 @@ public class PlayerGUI extends JFrame {
 	private JPanel contentPane;
 	private static JSlider progressBar;
 	private static JLabel lblInfoMusic;
+	private static JLabel lblTime;
 	
 	private MusicDAO dao;	
 	private static MusicPlayer mPlayer = new PlayerManager(); 
@@ -53,7 +54,7 @@ public class PlayerGUI extends JFrame {
 	 */
 	public PlayerGUI() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 479, 310);
+		setBounds(0, 0, 479, 350);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
@@ -62,12 +63,12 @@ public class PlayerGUI extends JFrame {
 		playlist = new ArrayList<MusicDTO>();
 		
 		lblInfoMusic = new JLabel(" ");
-		lblInfoMusic.setBounds(12, -11, 426, 35);
+		lblInfoMusic.setBounds(19, 0, 426, 35);
 		lblInfoMusic.setHorizontalAlignment(JLabel.CENTER);
 		this.contentPane.add(lblInfoMusic);
 		
 		JPanel audioButtonsPanel = new JPanel();
-		audioButtonsPanel.setBounds(12, 23, 426, 35);
+		audioButtonsPanel.setBounds(12, 37, 426, 35);
 		this.contentPane.add(audioButtonsPanel);
 		
 		JButton btnPrevious = new JButton("«");
@@ -119,7 +120,7 @@ public class PlayerGUI extends JFrame {
 		audioButtonsPanel.add(btnProxima);
 		
 		JPanel listButtonsPanel = new JPanel();
-		listButtonsPanel.setBounds(417, 120, 50, 158);
+		listButtonsPanel.setBounds(419, 158, 50, 158);
 		this.contentPane.add(listButtonsPanel);
 		
 		JButton buttonUp = new JButton("↑");
@@ -178,12 +179,15 @@ public class PlayerGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fc = new JFileChooser();
 				fc.setFileFilter(new FileNameExtensionFilter("Audio", "mp3", "ogg", "wav", "flac"));
+				fc.setMultiSelectionEnabled(true);
 
 				int res = fc.showOpenDialog(null);
 				if (res == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					if(file != null) {
-						playlist.add(new MusicDTO(file, playlist.size()));
+					File[] files = fc.getSelectedFiles();
+					if(files != null) {
+						for(File file : files) {
+							playlist.add(new MusicDTO(file, playlist.size()));
+						}
 						reloadJPlaylist();
 					} else { 
 						JOptionPane.showMessageDialog(null, "Erro ao carregar arquivo!");
@@ -195,7 +199,7 @@ public class PlayerGUI extends JFrame {
 		
 		progressBar = new JSlider();
 		progressBar.setValue(0);
-		progressBar.setBounds(12, 58, 426, 16);
+		progressBar.setBounds(19, 80, 368, 16);
 		contentPane.add(progressBar);
 		progressBar.addMouseListener(new MouseListener() {
 			
@@ -223,12 +227,12 @@ public class PlayerGUI extends JFrame {
 		
 
 		JPanel panel = new JPanel();
-		panel.setBounds(12, 70, 403, 51);
+		panel.setBounds(14, 96, 455, 50);
 		contentPane.add(panel);
 		panel.setLayout(null);
 		
 		JLabel lblOpesDaPlaylist = new JLabel("Opções da Playlist:");
-		lblOpesDaPlaylist.setBounds(120, 0, 136, 25);
+		lblOpesDaPlaylist.setBounds(80, 0, 136, 25);
 		panel.add(lblOpesDaPlaylist);
 		
 		JButton btnNova = new JButton("Nova");
@@ -296,7 +300,7 @@ public class PlayerGUI extends JFrame {
 				});
 			}
 		});
-		btnMostPlayed.setBounds(260, 25, 142, 25);
+		btnMostPlayed.setBounds(301, 25, 142, 25);
 		panel.add(btnMostPlayed);
 
 		
@@ -316,9 +320,13 @@ public class PlayerGUI extends JFrame {
 		});
 		
 		JScrollPane reproductionScrollPane = new JScrollPane();
-		reproductionScrollPane.setBounds(12, 124, 403, 154);
+		reproductionScrollPane.setBounds(14, 162, 403, 154);
 		reproductionScrollPane.setViewportView(reproductionTable);
 		this.contentPane.add(reproductionScrollPane);
+		
+		lblTime = new JLabel("");
+		lblTime.setBounds(390, 80, 100, 16);
+		contentPane.add(lblTime);
 	};
 	
 	private String[] getMusicTableNames() {
@@ -373,7 +381,7 @@ public class PlayerGUI extends JFrame {
 	@SuppressWarnings("deprecation")
 	public static void startProgressBar(int value) {
 		if (threadProgressBar == null) {
-			threadProgressBar = new ThreadProgressBar(value, selected.getDuration(), progressBar);
+			threadProgressBar = new ThreadProgressBar(value, selected.getDuration(), progressBar, lblTime);
 			threadProgressBar.start();
 		} else {
 			threadProgressBar.setValue(value);
@@ -398,7 +406,7 @@ public class PlayerGUI extends JFrame {
 		progressBar.setValue(0);
 		threadProgressBar.stop();
 		threadProgressBar = null;
-		
+		lblTime.setText("");
 	}
 				
 	private void positionUp() {

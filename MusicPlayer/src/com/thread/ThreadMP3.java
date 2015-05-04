@@ -7,7 +7,7 @@ import javazoom.jl.player.advanced.AdvancedPlayer;
 import com.dto.MusicDTO;
 import com.player.PlayerManager;
 
-public class ThreadMP3 extends GenericThread {
+public class ThreadMP3 extends Thread {
 	
 	private MusicDTO music;
 	private int begin;

@@ -108,14 +108,16 @@ public class MusicDAO {
 		for (Iterator item = playlist.iterator(); item.hasNext();) {
 			Element element = (Element) item.next();
 			MusicDTO music = new MusicDTO();
-			music.setName(element.getChildText("name"));
-			music.setAuthor(element.getChildText("author"));
-			music.setAlbum(element.getChildText("album"));
 			music.setFile(new File(element.getChildText("file")));
-			music.setPosition(Integer.parseInt(element.getChildText("position")));
-			music.setDuration(Integer.parseInt(element.getChildText("duration")));
-			music.setFormat(Integer.parseInt(element.getChildText("format")));
-			list.add(music);
+			if (music.getFile().exists()) {
+				music.setName(element.getChildText("name"));
+				music.setAuthor(element.getChildText("author"));
+				music.setAlbum(element.getChildText("album"));
+				music.setPosition(Integer.parseInt(element.getChildText("position")));
+				music.setDuration(Integer.parseInt(element.getChildText("duration")));
+				music.setFormat(Integer.parseInt(element.getChildText("format")));
+				list.add(music);
+			}
 		}
 		
 		Collections.sort(list);
