@@ -26,6 +26,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import com.dao.MusicDAO;
+import com.dto.ListElementDTO;
 import com.dto.MusicDTO;
 import com.player.MusicPlayer;
 import com.player.PlayerManager;
@@ -42,8 +43,8 @@ public class PlayerGUI extends JFrame {
 	private MusicDAO dao;	
 	private static MusicPlayer mPlayer = new PlayerManager(); 
 	
-	private static List<MusicDTO> playlist;
-	private static MusicDTO selected = null;
+	private static List<ListElementDTO> playlist;
+	private static ListElementDTO selected = null;
 	
 	private static JTable reproductionTable;
 	
@@ -60,7 +61,7 @@ public class PlayerGUI extends JFrame {
 		setContentPane(this.contentPane);
 		this.contentPane.setLayout(null);
 		
-		playlist = new ArrayList<MusicDTO>();
+		playlist = new ArrayList<ListElementDTO>();
 		
 		lblInfoMusic = new JLabel(" ");
 		lblInfoMusic.setBounds(19, 0, 426, 35);
@@ -88,7 +89,7 @@ public class PlayerGUI extends JFrame {
 						//reproductionList.setSelectedIndex(0);
 						reproductionTable.setRowSelectionInterval(0, 0);
 					}								
-					mPlayer.play(0, selected);
+					mPlayer.play(0, selected.getMusic());
 					updateMusicInfo();
 				}
 			}
@@ -150,7 +151,7 @@ public class PlayerGUI extends JFrame {
 					EventQueue.invokeLater(new Runnable() {
 						public void run() {
 							try {
-								new TagEditionGUI(playlist, selected).setVisible(true);							
+								new TagEditionGUI(playlist, selected.getMusic()).setVisible(true);							
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -186,7 +187,7 @@ public class PlayerGUI extends JFrame {
 					File[] files = fc.getSelectedFiles();
 					if(files != null) {
 						for(File file : files) {
-							playlist.add(new MusicDTO(file, playlist.size()));
+							playlist.add(new ListElementDTO(new MusicDTO(file), playlist.size()));
 						}
 						reloadJPlaylist();
 					} else { 
@@ -206,9 +207,9 @@ public class PlayerGUI extends JFrame {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if(e.getSource() instanceof JSlider) {
-					int value = ((JSlider) e.getSource()).getValue() * selected.getDuration() / 100;
+					int value = ((JSlider) e.getSource()).getValue() * selected.getMusic().getDuration() / 100;
 					mPlayer.stop();
-					mPlayer.play(value, selected);
+					mPlayer.play(value, selected.getMusic());
 				}
 			}
 			
@@ -238,7 +239,7 @@ public class PlayerGUI extends JFrame {
 		JButton btnNova = new JButton("Nova");
 		btnNova.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				playlist = new  ArrayList<MusicDTO>();
+				playlist = new  ArrayList<ListElementDTO>();
 				//reproductionTable = new JTable(getMusicTableData(), getMusicTableNames());
 				reproductionTable.setModel(new DefaultTableModel(getMusicTableData(), getMusicTableNames()));
 			}
@@ -336,9 +337,9 @@ public class PlayerGUI extends JFrame {
 	private String[][] getMusicTableData() {
 		String[][] names = new String[playlist.size()][3];
 		for(int i = 0; i < playlist.size(); i++) {
-			names[i][0] = playlist.get(i).getName();
-			names[i][1] = playlist.get(i).getAuthor();
-			names[i][2] = playlist.get(i).getAlbum();
+			names[i][0] = playlist.get(i).getMusic().getName();
+			names[i][1] = playlist.get(i).getMusic().getAuthor();
+			names[i][2] = playlist.get(i).getMusic().getAlbum();
 		}
 		
 		return names;
@@ -356,36 +357,40 @@ public class PlayerGUI extends JFrame {
 	private static void changeProcedures(int op){
 		int index = fixIndex(playlist.indexOf(selected) + op);
 		
-		reproductionTable.setRowSelectionInterval(index, index);
-		selected = playlist.get(index);
-		updateMusicInfo();
+		if (playlist != null && playlist.size() > 0) {
+			reproductionTable.setRowSelectionInterval(index, index);
+			selected = playlist.get(index);
+			updateMusicInfo();
+		}
 	}
 	
 	private static void updateMusicInfo() {
-		lblInfoMusic.setText(selected.getName() + " - " + selected.getAuthor());
+		lblInfoMusic.setText(selected.getMusic().getName() + " - " + selected.getMusic().getAuthor());
 	}
 	
 	public static void autoChangeMusic(int op){
 		changeProcedures(op);
 		
 		stopProgressBar();
-		mPlayer.autoChange(selected);
+		mPlayer.autoChange(selected.getMusic());
 	}
 	
 	public static void changeMusic(int op){
 		changeProcedures(op);
 		
-		mPlayer.change(selected);
+		if (selected != null) {
+			mPlayer.change(selected.getMusic());
+		}
 	}
 	
 	@SuppressWarnings("deprecation")
 	public static void startProgressBar(int value) {
 		if (threadProgressBar == null) {
-			threadProgressBar = new ThreadProgressBar(value, selected.getDuration(), progressBar, lblTime);
+			threadProgressBar = new ThreadProgressBar(value, selected.getMusic().getDuration(), progressBar, lblTime);
 			threadProgressBar.start();
 		} else {
 			threadProgressBar.setValue(value);
-			threadProgressBar.setMax(selected.getDuration());
+			threadProgressBar.setMax(selected.getMusic().getDuration());
 			threadProgressBar.resume();
 		}
 	}

@@ -31,6 +31,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.xml.sax.SAXException;
 
+import com.dto.ListElementDTO;
 import com.dto.MusicDTO;
 import com.util.DataUtil;
 
@@ -47,7 +48,7 @@ public class MusicDAO {
 		this.path = path;
 	}
 			
-	public boolean imprint(List<MusicDTO> list) {
+	public boolean imprint(List<ListElementDTO> list) {
 		Element config = new Element("playlist");
 		Document document = new Document(config);
 		
@@ -55,22 +56,23 @@ public class MusicDAO {
 		date.setText(DataUtil.DataHoraForStringPadraoH(new Date()));
 		config.addContent(date);
 		
-		for (MusicDTO item : list) {
+		for (ListElementDTO item : list) {
 			Element music = new Element("music");
 			
-			Element name = new Element("name").setText(item.getName());
-			Element author = new Element("author").setText(item.getAuthor());
-			Element album = new Element("album").setText(item.getAlbum());
-			Element file = new Element("file").setText(item.getFile().getAbsolutePath());
-			Element position = new Element("position").setText(item.getPosition()+"");
-			Element duration = new Element("duration").setText(item.getDuration()+"");
-			Element format = new Element("format").setText(item.getFormat()+"");
+			Element name = new Element("name").setText(item.getMusic().getName());
+			Element author = new Element("author").setText(item.getMusic().getAuthor());
+			Element album = new Element("album").setText(item.getMusic().getAlbum());
+			Element file = new Element("file").setText(item.getMusic().getFile().getAbsolutePath());
+			//Element position = new Element("position").setText(item.getPosition()+"");
+			Element duration = new Element("duration").setText(item.getMusic().getDuration()+"");
+			Element format = new Element("format").setText(item.getMusic().getFormat()+"");
 			
+			music.setAttribute("position", item.getPosition()+"");
 			music.addContent(name);
 			music.addContent(author);
 			music.addContent(album);
 			music.addContent(file);
-			music.addContent(position);
+			//music.addContent(position);
 			music.addContent(duration);
 			music.addContent(format);
 			config.addContent(music);
@@ -89,9 +91,9 @@ public class MusicDAO {
 		return false;
 	}
 
-	public List<MusicDTO> read() {
+	public List<ListElementDTO> read() {
 
-		List<MusicDTO> list = new ArrayList<MusicDTO>();
+		List<ListElementDTO> list = new ArrayList<ListElementDTO>();
 
 		Document doc = null;
 		SAXBuilder builder = new SAXBuilder();
@@ -112,10 +114,10 @@ public class MusicDAO {
 				music.setName(element.getChildText("name"));
 				music.setAuthor(element.getChildText("author"));
 				music.setAlbum(element.getChildText("album"));
-				music.setPosition(Integer.parseInt(element.getChildText("position")));
 				music.setDuration(Integer.parseInt(element.getChildText("duration")));
 				music.setFormat(Integer.parseInt(element.getChildText("format")));
-				list.add(music);
+				int position = Integer.parseInt(element.getAttributeValue("position"));
+				list.add(new ListElementDTO(music, position));
 			}
 		}
 		
@@ -147,7 +149,6 @@ public class MusicDAO {
 			music.setAuthor(element.getChildText("author"));
 			music.setAlbum(element.getChildText("album"));
 			music.setFile(new File(element.getChildText("file")));
-			music.setPosition(Integer.parseInt(element.getChildText("position")));
 			music.setDuration(Integer.parseInt(element.getChildText("duration")));
 			music.setFormat(Integer.parseInt(element.getChildText("format")));
 			int counter = Integer.parseInt(element.getChildText("counter"));
@@ -195,7 +196,6 @@ public class MusicDAO {
 			Element author = new Element("author").setText(item.getAuthor());
 			Element album = new Element("album").setText(item.getAlbum());
 			Element file = new Element("file").setText(item.getFile().getAbsolutePath());
-			Element position = new Element("position").setText(item.getPosition()+"");
 			Element duration = new Element("duration").setText(item.getDuration()+"");
 			Element format = new Element("format").setText(item.getFormat()+"");
 			Element counter = new Element("counter").setText(itemCounter+"");
@@ -204,7 +204,6 @@ public class MusicDAO {
 			music.addContent(author);
 			music.addContent(album);
 			music.addContent(file);
-			music.addContent(position);
 			music.addContent(duration);
 			music.addContent(format);
 			music.addContent(counter);
@@ -240,7 +239,7 @@ public class MusicDAO {
 		imprintMostPlayed(map);
 	}
 	
-	public void edit(List<MusicDTO> playlist, MusicDTO music){
+	public void edit(List<ListElementDTO> playlist, MusicDTO music){
 		
 		try {
 			writeMetadata(music);
@@ -286,16 +285,18 @@ public class MusicDAO {
 		AudioFile f = null;
 		try {
 			f = AudioFileIO.read(music.getFile());
+			AudioHeader audioHeader = f.getAudioHeader();
+			Tag tag = f.getTag();		
+			
+			music.setAuthor(tag.getFirst(FieldKey.ARTIST));
+			music.setName(tag.getFirst(FieldKey.TITLE));
+			music.setAlbum(tag.getFirst(FieldKey.ALBUM));
+			music.setDuration(audioHeader.getTrackLength()*1000);
 		} catch (CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
 			e.printStackTrace();
+			music.setName(music.getFile().getName());
 		}
-		AudioHeader audioHeader = f.getAudioHeader();
-		Tag tag = f.getTag();		
 		
-		music.setAuthor(tag.getFirst(FieldKey.ARTIST));
-		music.setName(tag.getFirst(FieldKey.TITLE));
-		music.setAlbum(tag.getFirst(FieldKey.ALBUM));
-		music.setDuration(audioHeader.getTrackLength()*1000);
 		music.setFormat(music.readFormat());			
 	}
 			

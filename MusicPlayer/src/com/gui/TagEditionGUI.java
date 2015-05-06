@@ -1,6 +1,5 @@
 package com.gui;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -14,6 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import com.dao.MusicDAO;
+import com.dto.ListElementDTO;
 import com.dto.MusicDTO;
 
 public class TagEditionGUI extends JFrame{
@@ -24,7 +24,7 @@ public class TagEditionGUI extends JFrame{
 	private JTextField tfArtist;
 	private JTextField tfAlbum;
 		
-	public TagEditionGUI(List<MusicDTO> playlist, MusicDTO music) {				
+	public TagEditionGUI(List<ListElementDTO> playlist, MusicDTO music) {				
 		setBounds(0, 0, 219, 206);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

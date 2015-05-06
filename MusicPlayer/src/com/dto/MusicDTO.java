@@ -7,7 +7,7 @@ import org.xml.sax.SAXException;
 
 import com.dao.MusicDAO;
 
-public class MusicDTO implements Comparable<MusicDTO> {
+public class MusicDTO {
 	public static final int F_DESCONHECIDO = -1;
 	public static final int F_MP3 = 0;
 	public static final int F_WAV = 1;
@@ -18,7 +18,6 @@ public class MusicDTO implements Comparable<MusicDTO> {
 	private String author;
 	private String album;
 	private File file;
-	private int position;
 	private int duration;
 	private int format;
 	
@@ -26,9 +25,8 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		
 	}
 	
-	public MusicDTO(File file, int position) {
+	public MusicDTO(File file) {
 		this.file = file;
-		this.position = position;
 		try {
 			new MusicDAO().loadMetaData(this);
 		} catch (IOException | SAXException e) {
@@ -88,14 +86,6 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		this.file = file;
 	}
 
-	public int getPosition() {
-		return position;
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
-	}
-
 	public int getDuration() {
 		return duration;
 	}
@@ -110,17 +100,6 @@ public class MusicDTO implements Comparable<MusicDTO> {
 
 	public void setFormat(int format) {
 		this.format = format;
-	}
-	
-	@Override
-	public int compareTo(MusicDTO o) {
-		if (this.getPosition() > o.getPosition()) {
-			return 1;
-		} else if (this.getPosition() < o.getPosition()) {
-			return -1;
-		} else {
-			return this.getName().compareTo(o.getName());
-		}
 	}
 	
 	@Override
@@ -145,8 +124,6 @@ public class MusicDTO implements Comparable<MusicDTO> {
 		builder.append(album);
 		builder.append(", file=");
 		builder.append(file);
-		builder.append(", position=");
-		builder.append(position);
 		builder.append(", duration=");
 		builder.append(duration);
 		builder.append(", format=");
